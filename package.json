@@ -1,22 +1,31 @@
 {
-  "name": "gmailjs-node-boilerplate",
+  "name": "securesend",
   "version": "1.0.0",
   "description": "",
   "main": "",
+  "watch": {
+    "build": {
+      "patterns": ["src", "css", "manifest"],
+      "extensions": "js,css,json"
+    }
+  },
   "scripts": {
     "deps": "npm install",
     "stage": "mkdir dist || echo Dist already exists.",
     "bundle": "browserify -o dist/gmailJsLoader.js src/gmailJsLoader.js && browserify -o dist/extension.js src/extension.js",
-    "devbuild": "cp ../gmail.js/src/gmail.js node_modules/gmail-js/src/ && npm run build", 
-    "build": "npm run stage && npm run bundle"
+    "devbuild": "cp ../gmail.js/src/gmail.js node_modules/gmail-js/src/ && npm run build",
+    "build": "npm run stage && npm run bundle",
+    "watch-sass": "sass --watch sass/main.scss css/styles.css",
+    "watch": "npm-watch"
   },
-  "author": "Jostein kjønigsen",
-  "license": "ISC",
+  "author": "Evan Chen",
   "dependencies": {
     "gmail-js": "^1.0.0",
     "jquery": "^3.3.1"
   },
   "devDependencies": {
-    "browserify": "16.5.2"
+    "browserify": "16.5.2",
+    "npm-watch": "^0.7.0",
+    "sass": "^1.30.0"
   }
 }

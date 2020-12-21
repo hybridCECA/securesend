@@ -1,15 +1,16 @@
 {
     "manifest_version": 2,
-    "name": "GmailJS Node Boilerplate Extension",
-    "short_name": "gmailjsnode",
+    "name": "SecureSend",
+    "short_name": "securesend",
     "version": "1.0",
-    "author": "Jostein Kjønigsen <jostein@kjonigsen.net>",
+    "author": "Evan Chen",
 
-    "description": "A minimal extension which demonstrates how to create a extension with Gmail.JS and NodeJS-based bundling.",
+    "description": "Extension to assist in encrypting email attachments and password coordination.",
 
     "content_scripts": [
         {
             "matches": [ "*://mail.google.com/*" ],
+            "css": ["css/styles.css"],
             "js": [
                 "src/extensionInjector.js"
             ],

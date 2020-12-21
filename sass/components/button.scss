@@ -1,0 +1,46 @@
+.buttonContainer {
+    position: relative;
+    height: 24px;
+    width: 24px;
+}
+
+.button {
+    height: 100%;
+    width: 100%;
+
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    opacity: 0.55;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    &::before {
+        content: '';
+        display: block;
+        opacity: 0;
+
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        top: 0px;
+
+        background: none;
+        box-sizing: border-box;
+        transform: scale(0);
+        transition-property: transform, opacity;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 4px;
+    }
+
+    &:hover::before {
+        background-color: rgba(32, 33, 36, 0.059);
+        border: none;
+        box-shadow: none;
+        opacity: 1;
+        transform: scale(1);
+    }
+}
