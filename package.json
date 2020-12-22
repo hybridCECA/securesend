@@ -5,7 +5,7 @@
   "main": "",
   "watch": {
     "build": {
-      "patterns": ["src", "css", "manifest"],
+      "patterns": ["src", "css", "manifest", "html"],
       "extensions": "js,css,json"
     }
   },

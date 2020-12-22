@@ -1,10 +1,20 @@
-.buttonContainer {
+@keyframes zoomIn {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.securesend_button_container {
   position: relative;
   height: 24px;
   width: 24px;
 }
 
-.button {
+.securesend_button {
   height: 100%;
   width: 100%;
   align-items: center;
@@ -12,10 +22,10 @@
   justify-content: center;
   opacity: 0.55;
 }
-.button:hover {
+.securesend_button:hover {
   opacity: 1;
 }
-.button::before {
+.securesend_button::before {
   content: "";
   display: block;
   opacity: 0;
@@ -31,12 +41,71 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 4px;
 }
-.button:hover::before {
+.securesend_button:hover::before {
   background-color: rgba(32, 33, 36, 0.059);
   border: none;
   box-shadow: none;
   opacity: 1;
   transform: scale(1);
+}
+
+.securesend_header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  background-color: #202124;
+  color: white;
+}
+.securesend_header_label {
+  font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  padding-left: 1rem;
+}
+
+#securesend_close {
+  padding-right: 1rem;
+  cursor: pointer;
+}
+
+#securesend_ui_container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 999;
+}
+#securesend_backdrop {
+  backdrop-filter: brightness(50%) blur(5px);
+  height: 100%;
+  width: 100%;
+}
+#securesend_dialog {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  border-radius: 8px;
+  border: none;
+  overflow: hidden;
+  animation: 0.1s ease 0s 1 zoomIn;
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+#securesend_dialog_container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 500px;
+}
+#securesend_frame_body {
+  margin: 0;
+}
+
+.securesend_dialog_closed {
+  transform: scale(0.8);
+  opacity: 0.55;
 }
 
 /*# sourceMappingURL=styles.css.map */

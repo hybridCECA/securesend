@@ -1,0 +1,21 @@
+.securesend_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    height: 36px;
+
+    background-color: $color-header;
+    color: white;
+
+    &_label {
+        font-family: Roboto,RobotoDraft,Helvetica,Arial,sans-serif;
+        font-weight: 500;
+        padding-left: 1rem;
+    }
+}
+
+#securesend_close {
+    padding-right: 1rem;
+    cursor: pointer;
+}
