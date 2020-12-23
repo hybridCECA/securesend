@@ -21,7 +21,8 @@
     "web_accessible_resources": [
         "dist/gmailJsLoader.js",
         "dist/extension.js",
-        "html/uploadDialog.html"
+        "html/dialog.html",
+        "html/upload.html"
     ],
 
     "permissions": [

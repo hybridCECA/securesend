@@ -1,0 +1,25 @@
+.securesend_upload {
+    &_instructions {
+        margin: $margin;
+    }
+
+    &_input {
+        display: none;
+    }
+
+    &_label {
+        margin: 0 $margin;
+
+        display: inline-block;
+        height: 36px;
+        line-height: 36px;
+        border-radius: 4px;
+        padding: 0 16px;
+
+        background-color: $color-primary;
+        color: white;
+        text-align: center;
+        cursor: pointer;
+        
+    }
+}

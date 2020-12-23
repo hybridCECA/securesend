@@ -10,10 +10,12 @@ function addScript(src, onload) {
 }
 
 function onExtensionLoad() {
-    var url = chrome.runtime.getURL("html/uploadDialog.html");
+    var dialog = chrome.runtime.getURL("html/dialog.html");
+    var upload = chrome.runtime.getURL("html/upload.html");
+    var urls = { dialog, upload };
 
     var event = document.createEvent("CustomEvent");
-    event.initCustomEvent("securesendUiSrcTransfer", true, true, url);
+    event.initCustomEvent("securesendUiSrcTransfer", true, true, urls);
     document.dispatchEvent(event);
 }
 

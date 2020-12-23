@@ -1,0 +1,34 @@
+.securesend {
+    &_dialog {
+        width: 100%;
+        height: 100%;
+
+        background-color: white;
+        border-radius: 8px;
+        border: none;
+        overflow: hidden;
+
+        animation: 0.1s ease 0s 1 zoomIn;
+        transition: transform 0.1s ease, opacity 0.1s ease;
+
+        &_closed {
+            transform: scale(0.8);
+            opacity: 0.55;
+        }
+    }
+
+    &_dialog_container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+        width: $dialog-width;
+        height: $dialog-height;
+    }
+
+    &_dialog_body {
+        height: calc(#{$dialog-height} - #{$header-height});
+        padding: $margin;
+    }
+}

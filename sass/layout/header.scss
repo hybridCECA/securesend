@@ -3,7 +3,7 @@
     align-items: center;
     justify-content: space-between;
 
-    height: 36px;
+    height: $header-height;
 
     background-color: $color-header;
     color: white;
@@ -11,11 +11,11 @@
     &_label {
         font-family: Roboto,RobotoDraft,Helvetica,Arial,sans-serif;
         font-weight: 500;
-        padding-left: 1rem;
+        padding-left: $margin;
     }
 }
 
-#securesend_close {
-    padding-right: 1rem;
+.securesend_close {
+    padding-right: $margin;
     cursor: pointer;
 }

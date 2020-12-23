@@ -4,8 +4,7 @@ const securesendNs = {};
 
 document.addEventListener("securesendUiSrcTransfer", function(event)
 {
-    securesendNs.uiSrc = event.detail;
-    console.log("recieved " + event.detail)
+    securesendNs.urls = event.detail;
 });
 
 // loader-code: wait until gmailjs has finished loading, before triggering actual extensiode-code.
@@ -27,28 +26,36 @@ function handleClose() {
 
 function handleOpen() {
     const uiContainer = document.createElement("div");
+    uiContainer.className = "securesend_ui_container";
     uiContainer.id = "securesend_ui_container";
 
     const backdrop = document.createElement("div");
-    backdrop.id = "securesend_backdrop";
+    backdrop.className = "securesend_backdrop";
     uiContainer.append(backdrop)
 
     const dialog = document.createElement("div");
+    dialog.className = "securesend_dialog";
     dialog.id = "securesend_dialog";
 
     const dialogContainer = document.createElement("div");
-    dialogContainer.id = "securesend_dialog_container";
+    dialogContainer.className = "securesend_dialog_container";
     dialogContainer.append(dialog)
     uiContainer.append(dialogContainer);
 
-    fetch(securesendNs.uiSrc)
+    fetch(securesendNs.urls.dialog)
     .then(response => response.text())
     .then(data => {
         dialog.innerHTML = data;
-        // other code
-        // eg update injected elements,
-        // add event listeners or logic to connect to other parts of the app
         document.getElementById("securesend_close").addEventListener("click", handleClose);
+
+
+        fetch(securesendNs.urls.upload)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("securesend_dialog_body").innerHTML = data;
+            }).catch(err => {
+                // handle error
+            });
     }).catch(err => {
         // handle error
     });
