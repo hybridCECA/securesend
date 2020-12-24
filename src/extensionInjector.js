@@ -12,7 +12,8 @@ function addScript(src, onload) {
 function onExtensionLoad() {
     var dialog = chrome.runtime.getURL("html/dialog.html");
     var upload = chrome.runtime.getURL("html/upload.html");
-    var urls = { dialog, upload };
+    var permissions = chrome.runtime.getURL("html/permissions.html");
+    var urls = { dialog, upload, permissions };
 
     var event = document.createEvent("CustomEvent");
     event.initCustomEvent("securesendUiSrcTransfer", true, true, urls);

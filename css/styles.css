@@ -66,6 +66,8 @@
 .securesend_close {
   padding-right: 1rem;
   cursor: pointer;
+  color: white;
+  font-size: 1.5rem;
 }
 
 .securesend_ui_container {
@@ -109,17 +111,17 @@
 }
 .securesend_dialog_body {
   height: calc(500px - 40px);
+  box-sizing: border-box;
   padding: 1rem;
 }
 
-.securesend_upload_instructions {
-  margin: 1rem;
+.securesend_upload_container {
+  margin: 0 1rem;
 }
 .securesend_upload_input {
   display: none;
 }
 .securesend_upload_label {
-  margin: 0 1rem;
   display: inline-block;
   height: 36px;
   line-height: 36px;
@@ -129,6 +131,23 @@
   color: white;
   text-align: center;
   cursor: pointer;
+}
+
+.securesend_permissions_container {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  box-sizing: border-box;
+  padding: 0 1rem;
+}
+.securesend_permissions_container > label > span {
+  margin-left: 1rem;
+}
+.securesend_permissions_next_button {
+  position: absolute !important;
+  right: 1rem;
+  bottom: 1rem;
 }
 
 /*# sourceMappingURL=styles.css.map */

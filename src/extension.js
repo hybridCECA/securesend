@@ -17,6 +17,16 @@ const loaderId = setInterval(() => {
     startExtension(window._gmailjs);
 }, 100);
 
+function handleFileSelected() {
+    fetch(securesendNs.urls.permissions)
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById("securesend_dialog_body").innerHTML = data;
+        }).catch(error => {
+            console.log(error)
+        });
+}
+
 function handleClose() {
     document.getElementById("securesend_dialog").className += " securesend_dialog_closed";
     setTimeout(() => {
@@ -53,11 +63,12 @@ function handleOpen() {
             .then(response => response.text())
             .then(data => {
                 document.getElementById("securesend_dialog_body").innerHTML = data;
-            }).catch(err => {
-                // handle error
+                document.getElementById("securesend_upload_input").addEventListener("change", handleFileSelected);
+            }).catch(error => {
+                console.log(error);
             });
-    }).catch(err => {
-        // handle error
+    }).catch(error => {
+        console.log(error);
     });
 
     document.body.append(uiContainer);

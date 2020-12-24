@@ -1,6 +1,10 @@
 .securesend_upload {
+    &_container {
+        margin: 0 $margin;
+    }
+
     &_instructions {
-        margin: $margin;
+
     }
 
     &_input {
@@ -8,8 +12,6 @@
     }
 
     &_label {
-        margin: 0 $margin;
-
         display: inline-block;
         height: 36px;
         line-height: 36px;

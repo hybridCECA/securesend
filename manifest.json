@@ -22,7 +22,8 @@
         "dist/gmailJsLoader.js",
         "dist/extension.js",
         "html/dialog.html",
-        "html/upload.html"
+        "html/upload.html",
+        "html/permissions.html"
     ],
 
     "permissions": [
