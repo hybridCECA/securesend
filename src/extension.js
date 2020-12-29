@@ -1,4 +1,5 @@
 "use strict";
+const password = require('secure-random-password');
 
 const securesendNs = {};
 
@@ -17,11 +18,28 @@ const loaderId = setInterval(() => {
     startExtension(window._gmailjs);
 }, 100);
 
+function handleGeneratePassword() {
+    document.getElementById("securesend_password").value = password.randomPassword();
+}
+
+function handlePermissionsNext() {
+    fetch(securesendNs.urls.password)
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById("securesend_dialog_body").innerHTML = data;
+            document.getElementById("securesend_password_generate_button").addEventListener("click", handleGeneratePassword);
+            document.getElementById("securesend_password_done_button").addEventListener("click", handleClose);
+        }).catch(error => {
+            console.log(error)
+        });
+}
+
 function handleFileSelected() {
     fetch(securesendNs.urls.permissions)
         .then(response => response.text())
         .then(data => {
             document.getElementById("securesend_dialog_body").innerHTML = data;
+            document.getElementById("securesend_permissions_next_button").addEventListener("click", handlePermissionsNext);
         }).catch(error => {
             console.log(error)
         });

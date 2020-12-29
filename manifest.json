@@ -23,7 +23,8 @@
         "dist/extension.js",
         "html/dialog.html",
         "html/upload.html",
-        "html/permissions.html"
+        "html/permissions.html",
+        "html/password.html"
     ],
 
     "permissions": [

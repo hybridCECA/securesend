@@ -28,7 +28,8 @@
   "dependencies": {
     "gmail-js": "^1.0.0",
     "jquery": "^3.3.1",
-    "material-components-web": "^8.0.0"
+    "material-components-web": "^8.0.0",
+    "secure-random-password": "^0.2.2"
   },
   "devDependencies": {
     "browserify": "16.5.2",
