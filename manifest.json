@@ -21,6 +21,7 @@
     "web_accessible_resources": [
         "dist/gmailJsLoader.js",
         "dist/extension.js",
+        "css/mdl/material-run.js",
         "html/dialog.html",
         "html/upload.html",
         "html/permissions.html",

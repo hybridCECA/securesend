@@ -1,5 +1,6 @@
 "use strict";
 const password = require('secure-random-password');
+const $ = require("jquery");
 
 const securesendNs = {};
 
@@ -19,7 +20,13 @@ const loaderId = setInterval(() => {
 }, 100);
 
 function handleGeneratePassword() {
-    document.getElementById("securesend_password").value = password.randomPassword();
+    const input = document.getElementById("securesend_password");
+    input.value = password.randomPassword();
+
+    const DIRTY_CLASS = "is-dirty";
+    if (!input.parentElement.classList.contains(DIRTY_CLASS)) {
+        input.parentElement.classList.add(DIRTY_CLASS)
+    }
 }
 
 function handlePermissionsNext() {
@@ -29,6 +36,13 @@ function handlePermissionsNext() {
             document.getElementById("securesend_dialog_body").innerHTML = data;
             document.getElementById("securesend_password_generate_button").addEventListener("click", handleGeneratePassword);
             document.getElementById("securesend_password_done_button").addEventListener("click", handleClose);
+
+            $.getScript( securesendNs.urls.mdlscript, function( data, textStatus, jqxhr ) {
+                console.log( data ); // Data returned
+                console.log( textStatus ); // Success
+                console.log( jqxhr.status ); // 200
+                console.log( "Load was performed." );
+            });
         }).catch(error => {
             console.log(error)
         });
