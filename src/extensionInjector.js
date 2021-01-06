@@ -14,8 +14,9 @@ function onExtensionLoad() {
     var upload = chrome.runtime.getURL("html/upload.html");
     var permissions = chrome.runtime.getURL("html/permissions.html");
     var password = chrome.runtime.getURL("html/password.html");
-    var mdlscript = chrome.runtime.getURL("css/mdl/material-run.js");
-    var urls = { dialog, upload, permissions, password, mdlscript };
+    var mdlScript = chrome.runtime.getURL("dist/mdl/material-run.js");
+    var encrypt = chrome.runtime.getURL("html/encrypt.html");
+    var urls = { dialog, upload, permissions, password, mdlScript, encrypt };
 
     var event = document.createEvent("CustomEvent");
     event.initCustomEvent("securesendUiSrcTransfer", true, true, urls);

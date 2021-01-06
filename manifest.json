@@ -21,11 +21,13 @@
     "web_accessible_resources": [
         "dist/gmailJsLoader.js",
         "dist/extension.js",
-        "css/mdl/material-run.js",
+        "dist/mdl/material-run.js",
+        "dist/webviewer/*",
         "html/dialog.html",
         "html/upload.html",
         "html/permissions.html",
-        "html/password.html"
+        "html/password.html",
+        "html/encrypt.html"
     ],
 
     "permissions": [

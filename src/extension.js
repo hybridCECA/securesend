@@ -19,6 +19,33 @@ const loaderId = setInterval(() => {
     startExtension(window._gmailjs);
 }, 100);
 
+function runScript(url) {
+    $.getScript(url, function( data, textStatus, jqxhr ) {
+        console.log( data ); // Data returned
+        console.log( textStatus ); // Success
+        console.log( jqxhr.status ); // 200
+        console.log( "Script ran" );
+    });
+}
+
+function handleEncryptLoaded(event) {
+    if (event.data === "securesend_loaded") {
+        securesendNs.encryptWindow.postMessage(securesendNs.bundle, "*");
+    }
+}
+
+function handleDone() {
+    const pass = document.getElementById("securesend_password").value;
+    securesendNs.bundle.pass = pass;
+
+    const body = document.getElementById("securesend_dialog_body");
+    body.innerHTML = "";
+
+    const encryptWindow = open("https://send-f93c7.web.app/");
+    window.addEventListener("message", handleEncryptLoaded);
+    securesendNs.encryptWindow = encryptWindow;
+}
+
 function handleGeneratePassword() {
     const input = document.getElementById("securesend_password");
     input.value = password.randomPassword();
@@ -30,25 +57,29 @@ function handleGeneratePassword() {
 }
 
 function handlePermissionsNext() {
+    const print = document.getElementById("checkbox-print").checked;
+    const modify = document.getElementById("checkbox-modify").checked;
+    const annotate = document.getElementById("checkbox-annotate").checked;
+    const forms = document.getElementById("checkbox-forms").checked;
+    securesendNs.bundle = {...securesendNs.bundle, print, modify, annotate, forms};
+
     fetch(securesendNs.urls.password)
         .then(response => response.text())
         .then(data => {
             document.getElementById("securesend_dialog_body").innerHTML = data;
             document.getElementById("securesend_password_generate_button").addEventListener("click", handleGeneratePassword);
-            document.getElementById("securesend_password_done_button").addEventListener("click", handleClose);
+            document.getElementById("securesend_password_done_button").addEventListener("click", handleDone);
 
-            $.getScript( securesendNs.urls.mdlscript, function( data, textStatus, jqxhr ) {
-                console.log( data ); // Data returned
-                console.log( textStatus ); // Success
-                console.log( jqxhr.status ); // 200
-                console.log( "Load was performed." );
-            });
+            runScript(securesendNs.urls.mdlScript);
         }).catch(error => {
             console.log(error)
         });
 }
 
-function handleFileSelected() {
+function handleFileSelected(event) {
+    const file = document.getElementById("securesend_upload_input").files[0];
+    securesendNs.bundle = {file};
+
     fetch(securesendNs.urls.permissions)
         .then(response => response.text())
         .then(data => {

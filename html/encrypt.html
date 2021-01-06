@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<title>PDFTron Test</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    <p>PDF Tron Test</p>
+	<input type="file" id="fileinput"/>
+	
+	
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+	<script src="../dist/webviewer/lib/core/CoreControls.js"></script>
+	<script src="../dist/webviewer/lib/core/pdf/PDFNet.js"></script>
+	<script>
+		CoreControls.setWorkerPath('../dist/webviewer/lib/core');
+		PDFNet.initialize(null);
+	</script>
+	<script>
+		const fileinput = document.getElementById("fileinput");
+		fileinput.addEventListener("change", async function () {
+			const file = fileinput.files[0];
+			const mem = await file.arrayBuffer();
+			const doc = await PDFNet.PDFDoc.createFromBuffer(mem);
+
+			// Apply a new security handler with given security settings.
+			// In order to open saved PDF you will need a user password 'test'.
+			const newHandler = await PDFNet.SecurityHandler.createDefault();
+
+			// Set a new password required to open a document
+			const user_password = 'test';
+			newHandler.changeUserPasswordUString(user_password);
+
+			// Set Permissions
+			newHandler.setPermission(PDFNet.SecurityHandler.Permission.e_print, false);
+			newHandler.setPermission(PDFNet.SecurityHandler.Permission.e_extract_content, true);
+
+			// Note: document takes the ownership of newHandler.
+			doc.setSecurityHandler(newHandler);
+
+			const buf = await doc.saveMemoryBuffer(PDFNet.SDFDoc.SaveOptions.e_linearized);
+			const blob = new Blob([buf], { type: 'application/pdf' });
+			saveAs(blob, "encrypted_" + file.name);
+		});
+	</script>
+	</body>
+
+</html>
