@@ -22,7 +22,6 @@
         "dist/gmailJsLoader.js",
         "dist/extension.js",
         "dist/mdl/material-run.js",
-        "dist/webviewer/*",
         "html/dialog.html",
         "html/upload.html",
         "html/permissions.html",
@@ -32,5 +31,7 @@
 
     "permissions": [
         "https://*/*"
-    ]
+    ],
+
+    "content_security_policy": "script-src 'sha256-cGrdiwKhvGKK6wkcj3Hm+Prnf3bCAecj+nBmtr513HI=' 'self'"
 }

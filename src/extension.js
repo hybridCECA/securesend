@@ -1,4 +1,5 @@
 "use strict";
+
 const password = require('secure-random-password');
 const $ = require("jquery");
 
@@ -28,9 +29,11 @@ function runScript(url) {
     });
 }
 
-function handleEncryptLoaded(event) {
-    if (event.data === "securesend_loaded") {
-        securesendNs.encryptWindow.postMessage(securesendNs.bundle, "*");
+function handleMessageReceived(event) {
+    const {data} = event;
+    if (data === "securesend_loaded") {
+        console.log("securesend loaded")
+        securesendNs.encryptIFrame.contentWindow.postMessage(securesendNs.bundle, "*");
     }
 }
 
@@ -38,12 +41,15 @@ function handleDone() {
     const pass = document.getElementById("securesend_password").value;
     securesendNs.bundle.pass = pass;
 
-    const body = document.getElementById("securesend_dialog_body");
-    body.innerHTML = "";
+    const iframe = document.createElement("iframe");
+    iframe.setAttribute("src", securesendNs.urls.encrypt)
+    securesendNs.encryptIFrame = iframe;
 
-    const encryptWindow = open("https://send-f93c7.web.app/");
-    window.addEventListener("message", handleEncryptLoaded);
-    securesendNs.encryptWindow = encryptWindow;
+    const body = document.getElementById("securesend_dialog_body");
+    body.innerHTML = '';
+    body.appendChild(iframe);
+
+    window.addEventListener("message", handleMessageReceived);
 }
 
 function handleGeneratePassword() {

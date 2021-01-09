@@ -6,12 +6,9 @@
   "watch": {
     "build": {
       "patterns": [
-        "src",
-        "css",
-        "manifest",
-        "html"
+        "src"
       ],
-      "extensions": "js,css,json,html"
+      "extensions": "js"
     }
   },
   "scripts": {
