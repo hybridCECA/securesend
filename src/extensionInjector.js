@@ -9,6 +9,8 @@ function addScript(src, onload) {
     script.onload = onload;
 }
 
+// Ran when extension loads
+// Sends the urls of the extension pages in an object to the extension script
 function onExtensionLoad() {
     var dialog = chrome.runtime.getURL("html/dialog.html");
     var upload = chrome.runtime.getURL("html/upload.html");
