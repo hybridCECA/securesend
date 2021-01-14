@@ -166,7 +166,7 @@ function handleOpen(emailId) {
 // Creates handler with compose window and sends the right id
 function getOpenHandler(compose) {
     return function() {
-        let id = compose.email_id();
+        let id = compose.email_id().split(":").pop();
         handleOpen(id);
     }
 }

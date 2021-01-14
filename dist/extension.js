@@ -13465,26 +13465,19 @@ secureRandom.randomBuffer = function(byteCount) {
 },{"_process":6,"buffer":3,"crypto":2}],12:[function(require,module,exports){
 "use strict";
 
+// Imports
 const password = require('secure-random-password');
 const $ = require("jquery");
 
+// Name space used to store variables
 const securesendNs = {};
 
-document.addEventListener("securesendUiSrcTransfer", function(event)
-{
+// Receive urls from extensionInjector
+document.addEventListener("securesendUiSrcTransfer", function(event) {
     securesendNs.urls = event.detail;
 });
 
-// loader-code: wait until gmailjs has finished loading, before triggering actual extensiode-code.
-const loaderId = setInterval(() => {
-    if (!window._gmailjs) {
-        return;
-    }
-
-    clearInterval(loaderId);
-    startExtension(window._gmailjs);
-}, 100);
-
+// Function used to run scripts from a url
 function runScript(url) {
     $.getScript(url, function( data, textStatus, jqxhr ) {
         console.log( data ); // Data returned
@@ -13494,6 +13487,8 @@ function runScript(url) {
     });
 }
 
+// Ran when the encryption page loads
+// Sends the bundle for encryption
 function handleMessageReceived(event) {
     const {data} = event;
     if (data === "securesend_loaded") {
@@ -13502,14 +13497,18 @@ function handleMessageReceived(event) {
     }
 }
 
+// Event handler for when "done" is clicked
 function handleDone() {
+    // Add password to the bundle
     const pass = document.getElementById("securesend_password").value;
     securesendNs.bundle.pass = pass;
 
+    // Create iframe with the encrypt url
     const iframe = document.createElement("iframe");
     iframe.setAttribute("src", securesendNs.urls.encrypt)
     securesendNs.encryptIFrame = iframe;
 
+    // Add the iframe to the dialog
     const body = document.getElementById("securesend_dialog_body");
     body.innerHTML = '';
     body.appendChild(iframe);
@@ -13517,23 +13516,29 @@ function handleDone() {
     window.addEventListener("message", handleMessageReceived);
 }
 
+// Event handler for password generation
 function handleGeneratePassword() {
+    // Add random password to the input
     const input = document.getElementById("securesend_password");
     input.value = password.randomPassword();
 
+    // Add dirty class to trigger animation
     const DIRTY_CLASS = "is-dirty";
     if (!input.parentElement.classList.contains(DIRTY_CLASS)) {
         input.parentElement.classList.add(DIRTY_CLASS)
     }
 }
 
+// Event handler for "next" button on the permissions page
 function handlePermissionsNext() {
+    // Get permission and add to bundle
     const print = document.getElementById("checkbox-print").checked;
     const modify = document.getElementById("checkbox-modify").checked;
     const annotate = document.getElementById("checkbox-annotate").checked;
     const forms = document.getElementById("checkbox-forms").checked;
     securesendNs.bundle = {...securesendNs.bundle, print, modify, annotate, forms};
 
+    // Load the next page: password
     fetch(securesendNs.urls.password)
         .then(response => response.text())
         .then(data => {
@@ -13547,10 +13552,13 @@ function handlePermissionsNext() {
         });
 }
 
+// Event handler for file selection on the first page
 function handleFileSelected(event) {
+    // Add file to bundle
     const file = document.getElementById("securesend_upload_input").files[0];
     securesendNs.bundle.file = file;
 
+    // Load the next page: permissions
     fetch(securesendNs.urls.permissions)
         .then(response => response.text())
         .then(data => {
@@ -13561,33 +13569,43 @@ function handleFileSelected(event) {
         });
 }
 
+// Event handler for the close button
 function handleClose() {
+    // Start close animation
     document.getElementById("securesend_dialog").className += " securesend_dialog_closed";
+
+    // Close dialog in 100ms
     setTimeout(() => {
         document.getElementById("securesend_ui_container").remove();
     }, 100);
 }
 
+// Event handler for toolbar lock icon
 function handleOpen(emailId) {
     securesendNs.bundle = { emailId };
 
+    // Create container
     const uiContainer = document.createElement("div");
     uiContainer.className = "securesend_ui_container";
     uiContainer.id = "securesend_ui_container";
 
+    // Create backdrop
     const backdrop = document.createElement("div");
     backdrop.className = "securesend_backdrop";
     uiContainer.append(backdrop)
 
+    // Create dialog
     const dialog = document.createElement("div");
     dialog.className = "securesend_dialog";
     dialog.id = "securesend_dialog";
 
+    // Create dialog container
     const dialogContainer = document.createElement("div");
     dialogContainer.className = "securesend_dialog_container";
     dialogContainer.append(dialog)
     uiContainer.append(dialogContainer);
 
+    // Load page
     fetch(securesendNs.urls.dialog)
     .then(response => response.text())
     .then(data => {
@@ -13610,14 +13628,25 @@ function handleOpen(emailId) {
     document.body.append(uiContainer);
 }
 
+// Creates handler with compose window and sends the right id
 function getOpenHandler(compose) {
     return function() {
-        let id = compose.email_id();
+        let id = compose.email_id().split(":").pop();
         handleOpen(id);
     }
 }
 
-// actual extension-code
+// loader-code: wait until gmailjs has finished loading, before triggering actual extensiode-code.
+const loaderId = setInterval(() => {
+    if (!window._gmailjs) {
+        return;
+    }
+
+    clearInterval(loaderId);
+    startExtension(window._gmailjs);
+}, 100);
+
+// Ran when gmail page loads
 function startExtension(gmail) {
     console.log("Securesend loading...");
     window.gmail = gmail;
@@ -13637,5 +13666,4 @@ function startExtension(gmail) {
 
     });
 }
-
 },{"jquery":5,"secure-random-password":7}]},{},[12]);
