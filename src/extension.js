@@ -4,6 +4,9 @@
     // Imports
     const password = require('secure-random-password');
     const $ = require("jquery");
+    const archiver = require('archiver');
+    archiver.registerFormat('zip-encrypted', require("archiver-zip-encrypted"));
+    const fs = require('browserify-fs');
 
     // Bundle to send to iframe
     let bundle = {};
@@ -56,6 +59,22 @@
         // Add password to the bundle
         const pass = document.getElementById("securesend_password").value;
         bundle.pass = pass;
+
+        // Create zip if not pdf
+        if (!bundle.file.name.endsWith(".pdf")) {
+            const name = `./${bundle.file.name.replace(/\.pdf$/, "")}.zip`;
+            const output = fs.createWriteStream(name);
+
+            let archive = archiver.create('zip-encrypted', { zlib: { level: 8 }, encryptionMethod: 'aes256', password: '123' });
+            archive.pipe(output);
+            archive.append('File contents', { name: 'file.name' })
+            archive.finalize();
+
+            fs.readFile(name, function (err, content) {
+                const blob = new Blob([content], { type: "octet/stream" });
+                bundle.blob = blob;
+            });
+        }
 
         // Create iframe with the encrypt url
         const iframe = document.createElement("iframe");
