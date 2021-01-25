@@ -54,6 +54,25 @@
         }
     }
 
+    function fileToString(file) {
+        return new Promise((accept, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = function () {
+                accept(reader.result);
+            }
+            reader.readAsText(file);
+        });
+    }
+
+    function readFile(name) {
+        return new Promise((accept, reject) => {
+            fs.readFile(name, function (err, content) {
+                const blob = new Blob([content], { type: "octet/stream" });
+                accept(blob);
+            });
+        });
+    }
+
     // Event handler for when "done" is clicked
     function handleDone() {
         // Add password to the bundle
@@ -67,13 +86,14 @@
 
             let archive = archiver.create('zip-encrypted', { zlib: { level: 8 }, encryptionMethod: 'aes256', password: '123' });
             archive.pipe(output);
-            archive.append('File contents', { name: 'file.name' })
-            archive.finalize();
+            fileToString(bundle.file).then(string => {
+                archive.append(string, { name: bundle.file.name })
+                archive.finalize();
 
-            fs.readFile(name, function (err, content) {
-                const blob = new Blob([content], { type: "octet/stream" });
+                return readFile(name);
+            }).then(blob => {
                 bundle.blob = blob;
-            });
+            })
         }
 
         // Create iframe with the encrypt url
