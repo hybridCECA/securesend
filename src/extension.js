@@ -20,6 +20,9 @@
     // Encrypting iframe
     let encryptIFrame;
 
+    // Email address
+    let email;
+
     // Receive urls from extensionInjector
     document.addEventListener("securesendUiSrcTransfer", function (event) {
         urls = event.detail;
@@ -176,7 +179,7 @@
     // Event handler for toolbar lock icon
     function handleOpen() {
         const emailId = currentCompose.email_id().split(":").pop()
-        bundle = { emailId };
+        bundle = { emailId, email };
 
         // Create container
         const uiContainer = document.createElement("div");
@@ -248,6 +251,8 @@
 
         gmail.observe.on("load", () => {
             console.log("Securesend successfully loaded.");
+
+            email = gmail.get.user_email();
 
             gmail.observe.on("compose", function (compose, type) {
                 const iconButton = document.createElement("div");
