@@ -5,7 +5,7 @@
     <script src="../dist/webviewer.min.js"></script>
   </head>
   <body>
-    <iframe id="iframe" src="https://send-f93c7.web.app/"></iframe>
+    <iframe id="iframe" scrolling="no" style="height:100%; width:100%; border:none;" src="https://send-f93c7.web.app/"></iframe>
     <script>
       window.addEventListener("message", function(event) {
         document.getElementById("iframe").contentWindow.postMessage(event.data, "*");

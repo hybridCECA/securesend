@@ -101,6 +101,9 @@
 
         // Create iframe with the encrypt url
         const iframe = document.createElement("iframe");
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.style.border = "none";
         iframe.setAttribute("src", urls.encrypt)
         encryptIFrame = iframe;
 
