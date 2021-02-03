@@ -77,27 +77,26 @@
     }
 
     // Event handler for when "done" is clicked
-    function handleDone() {
+    async function handleDone() {
         // Add password to the bundle
         const pass = document.getElementById("securesend_password").value;
         bundle.pass = pass;
 
-        // Create zip if not pdf
-        if (!bundle.file.name.endsWith(".pdf")) {
-            const name = `./${bundle.file.name.replace(/\.pdf$/, "")}.zip`;
-            const output = fs.createWriteStream(name);
+        const name = `Encrypted Files.zip`;
+        const output = fs.createWriteStream(name);
 
-            let archive = archiver.create('zip-encrypted', { zlib: { level: 8 }, encryptionMethod: 'aes256', password: '123' });
-            archive.pipe(output);
-            fileToString(bundle.file).then(string => {
-                archive.append(string, { name: bundle.file.name })
-                archive.finalize();
+        let archive = archiver.create('zip-encrypted', { zlib: { level: 8 }, encryptionMethod: 'aes256', password: '123' });
+        archive.pipe(output);
 
-                return readFile(name);
-            }).then(blob => {
-                bundle.blob = blob;
-            })
+        for (const file of bundle.files) {
+            if (!file.name.endsWith(".pdf")) {
+                const string = await fileToString(file);
+                archive.append(string, { name: file.name })
+            }
         }
+
+        archive.finalize();
+        bundle.blob = await readFile(name);
 
         // Create iframe with the encrypt url
         const iframe = document.createElement("iframe");
@@ -154,8 +153,7 @@
     // Event handler for file selection on the first page
     function handleFileSelected(event) {
         // Add file to bundle
-        const file = document.getElementById("securesend_upload_input").files[0];
-        bundle.file = file;
+        bundle.files = document.getElementById("securesend_upload_input").files;
 
         // Load the next page: permissions
         fetch(urls.permissions)
