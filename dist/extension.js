@@ -82841,27 +82841,40 @@ arguments[4][37][0].apply(exports,arguments)
         });
     }
 
+    function containsNonPdf(fileList) {
+        for (const file of fileList) {
+            if (!file.name.endsWith(".pdf")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // Event handler for when "done" is clicked
     async function handleDone() {
         // Add password to the bundle
         const pass = document.getElementById("securesend_password").value;
         bundle.pass = pass;
 
-        const name = `Encrypted Files.zip`;
-        const output = fs.createWriteStream(name);
+        // Make encrypted zip if there are non pdf files
+        if (containsNonPdf(bundle.files)) {
+            const name = `Encrypted Files.zip`;
+            const output = fs.createWriteStream(name);
 
-        let archive = archiver.create('zip-encrypted', { zlib: { level: 8 }, encryptionMethod: 'aes256', password: '123' });
-        archive.pipe(output);
+            let archive = archiver.create('zip-encrypted', { zlib: { level: 8 }, encryptionMethod: 'aes256', password: '123' });
+            archive.pipe(output);
 
-        for (const file of bundle.files) {
-            if (!file.name.endsWith(".pdf")) {
-                const string = await fileToString(file);
-                archive.append(string, { name: file.name })
+            for (const file of bundle.files) {
+                if (!file.name.endsWith(".pdf")) {
+                    const string = await fileToString(file);
+                    archive.append(string, { name: file.name })
+                }
             }
-        }
 
-        archive.finalize();
-        bundle.blob = await readFile(name);
+            archive.finalize();
+            bundle.blob = await readFile(name);
+        }
 
         // Create iframe with the encrypt url
         const iframe = document.createElement("iframe");
