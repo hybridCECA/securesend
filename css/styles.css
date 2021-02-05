@@ -151,14 +151,11 @@
   right: 2rem;
   bottom: 2rem;
 }
-
-.securesend_password_generate {
+.securesend_permissions_button_container {
   margin-bottom: 1rem;
 }
-.securesend_password_done_button {
-  position: absolute !important;
-  right: 2rem;
-  bottom: 2rem;
+.securesend_permissions_title {
+  margin-top: 1rem;
 }
 
 /*# sourceMappingURL=styles.css.map */

@@ -23,6 +23,9 @@
     // Email address
     let email;
 
+    // Index of current file
+    let currentFileNum = -1;
+
     // Receive urls from extensionInjector
     document.addEventListener("securesendUiSrcTransfer", function (event) {
         urls = event.detail;
@@ -87,29 +90,7 @@
     }
 
     // Event handler for when "done" is clicked
-    async function handleDone() {
-        // Add password to the bundle
-        const pass = document.getElementById("securesend_password").value;
-        bundle.pass = pass;
-
-        // Make encrypted zip if there are non pdf files
-        if (containsNonPdf(bundle.files)) {
-            const name = `Encrypted Files.zip`;
-            const output = fs.createWriteStream(name);
-
-            let archive = archiver.create('zip-encrypted', { zlib: { level: 8 }, encryptionMethod: 'aes256', password: '123' });
-            archive.pipe(output);
-
-            for (const file of bundle.files) {
-                if (!file.name.endsWith(".pdf")) {
-                    const string = await fileToString(file);
-                    archive.append(string, { name: file.name })
-                }
-            }
-
-            archive.finalize();
-            bundle.blob = await readFile(name);
-        }
+    function handleDone() {
 
         // Create iframe with the encrypt url
         const iframe = document.createElement("iframe");
@@ -131,7 +112,8 @@
     function handleGeneratePassword() {
         // Add random password to the input
         const input = document.getElementById("securesend_password");
-        input.value = password.randomPassword();
+        input.value = password.randomPassword({length: 16});
+        input.type = "text";
 
         // Add dirty class to trigger animation
         const DIRTY_CLASS = "is-dirty";
@@ -140,40 +122,90 @@
         }
     }
 
+    // Event handler for password visibility toggle
+    function handleTogglePassVisibility() {
+        const input = document.getElementById("securesend_password");
+        if (input.type === "password") {
+            input.type = "text";
+        } else {
+            input.type = "password";
+        }
+    }
+
     // Event handler for "next" button on the permissions page
-    function handlePermissionsNext() {
-        // Get permission and add to bundle
-        const print = document.getElementById("checkbox-print").checked;
-        const modify = document.getElementById("checkbox-modify").checked;
-        const annotate = document.getElementById("checkbox-annotate").checked;
-        const forms = document.getElementById("checkbox-forms").checked;
-        bundle = { ...bundle, print, modify, annotate, forms };
+    async function handlePermissionsNext() {
+        // Add password to the bundle
+        const pass = document.getElementById("securesend_password").value;
 
-        // Load the next page: password
-        fetch(urls.password)
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById("securesend_dialog_body").innerHTML = data;
-                document.getElementById("securesend_password_generate_button").addEventListener("click", handleGeneratePassword);
-                document.getElementById("securesend_password_done_button").addEventListener("click", handleDone);
+        if (currentFileNum === -1) {
+            const name = `Encrypted Files.zip`;
+            const output = fs.createWriteStream(name);
 
-                runScript(urls.mdlScript);
-            }).catch(error => {
-                console.log(error)
-            });
+            let archive = archiver.create('zip-encrypted', { zlib: { level: 8 }, encryptionMethod: 'aes256', password: pass });
+            archive.pipe(output);
+
+            for (const file of bundle.files) {
+                if (!file.name.endsWith(".pdf")) {
+                    const string = await fileToString(file);
+                    archive.append(string, { name: file.name })
+                }
+            }
+
+            archive.finalize();
+            bundle.blob = await readFile(name);
+
+            bundle.files = bundle.files.filter(file => file.name.endsWith(".pdf"));
+        } else {
+            // Get permission and add to bundle
+            const print = document.getElementById("checkbox-print").checked;
+            const modify = document.getElementById("checkbox-modify").checked;
+            const annotate = document.getElementById("checkbox-annotate").checked;
+            const forms = document.getElementById("checkbox-forms").checked;
+            bundle.permissionsArray.push({ print, modify, annotate, forms, pass });
+        }
+
+        currentFileNum++;
+        if (currentFileNum < bundle.files.length) {
+            loadPermissions();
+        } else {
+            handleDone();
+        }
     }
 
     // Event handler for file selection on the first page
     function handleFileSelected(event) {
         // Add file to bundle
-        bundle.files = document.getElementById("securesend_upload_input").files;
+        bundle.files = Array.from(document.getElementById("securesend_upload_input").files);
+        bundle.permissionsArray = [];
+
+        if (containsNonPdf(bundle.files)) {
+            currentFileNum = -1;
+        } else {
+            currentFileNum = 0;
+        }
 
         // Load the next page: permissions
+        loadPermissions();
+    }
+
+    // Loads the permissions page
+    function loadPermissions() {
         fetch(urls.permissions)
             .then(response => response.text())
             .then(data => {
                 document.getElementById("securesend_dialog_body").innerHTML = data;
                 document.getElementById("securesend_permissions_next_button").addEventListener("click", handlePermissionsNext);
+                document.getElementById("securesend_password_generate_button").addEventListener("click", handleGeneratePassword);
+                document.getElementById("securesend_password_show_button").addEventListener("click", handleTogglePassVisibility);
+
+                runScript(urls.mdlScript);
+
+                if (currentFileNum === -1) {
+                    document.getElementsByClassName("securesend_permissions_container")[0].remove();
+                    document.getElementsByClassName("securesend_permissions_title")[0].innerHTML += " for encrypted zip"
+                } else {
+                    document.getElementsByClassName("securesend_permissions_title")[0].innerHTML += bundle.files[currentFileNum].name;
+                }
             }).catch(error => {
                 console.log(error)
             });

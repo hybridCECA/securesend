@@ -19,4 +19,12 @@
         right: $margin-large;
         bottom: $margin-large;
     }
+
+    &_button_container {
+        margin-bottom: $margin;
+    }
+
+    &_title {
+        margin-top: 1rem;
+    }
 }

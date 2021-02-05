@@ -8,8 +8,8 @@
     </head>
     <body style="height: 100%; width: 100%">
         <div class="securesend_permissions_container">
-            <h5 class="securesend_permissions_instructions">
-                Select Permission Settings for the Encrypted Document
+            <h5 class="securesend_permissions_title">
+                Select Permission Settings for 
             </h5>
             <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-print">
                 <input type="checkbox" id="checkbox-print" class="mdl-checkbox__input" checked>
@@ -27,6 +27,28 @@
                 <input type="checkbox" id="checkbox-forms" class="mdl-checkbox__input" checked>
                 <span class="mdl-checkbox__label">Filling Forms</span>
             </label>
+        </div>
+        <div class="securesend_permissions_container">
+            <h5 class="securesend_permissions_title">
+                Password
+            </h5>
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="password" id="securesend_password">
+                <label class="mdl-textfield__label" for="securesend_password">Password</label>
+            </div>
+
+            <div class="securesend_permissions_button_container">
+                <button id="securesend_password_generate_button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                    Generate
+                </button>
+            </div>
+
+            <div class="securesend_permissions_button_container">
+                <button id="securesend_password_show_button" class="mdl-button mdl-js-button mdl-button--raised">
+                    Toggle Password Visibility
+                </button>
+            </div>
             <button id="securesend_permissions_next_button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored securesend_permissions_next_button">
                 Next
             </button>
