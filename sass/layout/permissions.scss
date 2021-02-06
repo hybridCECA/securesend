@@ -14,17 +14,23 @@
         }
     }
 
-    &_next_button {
-        position: absolute !important;
-        right: $margin-large;
-        bottom: $margin-large;
-    }
-
     &_button_container {
         margin-bottom: $margin;
     }
 
     &_title {
         margin-top: 1rem;
+    }
+
+    &_bottom {
+        width: 100%;
+        position: absolute;
+        bottom: $margin-large;
+        right: 0;
+    }
+
+    &_button {
+        float: right;
+        margin-right: $margin-large !important;
     }
 }

@@ -82897,6 +82897,53 @@ arguments[4][37][0].apply(exports,arguments)
         }
     }
 
+    // Event handler for "apply" button on the permissions page
+    async function handleApplyAll() {
+        // Add password to the bundle
+        const pass = document.getElementById("securesend_password").value;
+
+        // Default permissions
+        let print = true;
+        let modify = true;
+        let annotate = true;
+        let forms = true;
+
+        if (currentFileNum === -1) {
+            const name = `Encrypted Files.zip`;
+            const output = fs.createWriteStream(name);
+
+            let archive = archiver.create('zip-encrypted', { zlib: { level: 8 }, encryptionMethod: 'aes256', password: pass });
+            archive.pipe(output);
+
+            for (const file of bundle.files) {
+                if (!file.name.endsWith(".pdf")) {
+                    const string = await fileToString(file);
+                    archive.append(string, { name: file.name })
+                }
+            }
+
+            archive.finalize();
+            bundle.blob = await readFile(name);
+
+            bundle.files = bundle.files.filter(file => file.name.endsWith(".pdf"));
+
+            currentFileNum++;
+        } else {
+            // Get permission and add to bundle
+            print = document.getElementById("checkbox-print").checked;
+            modify = document.getElementById("checkbox-modify").checked;
+            annotate = document.getElementById("checkbox-annotate").checked;
+            forms = document.getElementById("checkbox-forms").checked;
+        }
+
+        while (currentFileNum < bundle.files.length) {
+            bundle.permissionsArray.push({ print, modify, annotate, forms, pass });
+            currentFileNum++;
+        }
+
+        handleDone();
+    }
+
     // Event handler for "next" button on the permissions page
     async function handlePermissionsNext() {
         // Add password to the bundle
@@ -82916,10 +82963,10 @@ arguments[4][37][0].apply(exports,arguments)
                 }
             }
 
-            bundle.files = bundle.files.filter(file => file.name.endsWith(".pdf"));
-
             archive.finalize();
             bundle.blob = await readFile(name);
+
+            bundle.files = bundle.files.filter(file => file.name.endsWith(".pdf"));
         } else {
             // Get permission and add to bundle
             const print = document.getElementById("checkbox-print").checked;
@@ -82960,6 +83007,7 @@ arguments[4][37][0].apply(exports,arguments)
             .then(data => {
                 document.getElementById("securesend_dialog_body").innerHTML = data;
                 document.getElementById("securesend_permissions_next_button").addEventListener("click", handlePermissionsNext);
+                document.getElementById("securesend_permissions_apply_button").addEventListener("click", handleApplyAll);
                 document.getElementById("securesend_password_generate_button").addEventListener("click", handleGeneratePassword);
                 document.getElementById("securesend_password_show_button").addEventListener("click", handleTogglePassVisibility);
 

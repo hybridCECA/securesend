@@ -146,16 +146,21 @@
 .securesend_permissions_container > label > span {
   margin-left: 1rem;
 }
-.securesend_permissions_next_button {
-  position: absolute !important;
-  right: 2rem;
-  bottom: 2rem;
-}
 .securesend_permissions_button_container {
   margin-bottom: 1rem;
 }
 .securesend_permissions_title {
   margin-top: 1rem;
+}
+.securesend_permissions_bottom {
+  width: 100%;
+  position: absolute;
+  bottom: 2rem;
+  right: 0;
+}
+.securesend_permissions_button {
+  float: right;
+  margin-right: 2rem !important;
 }
 
 /*# sourceMappingURL=styles.css.map */
