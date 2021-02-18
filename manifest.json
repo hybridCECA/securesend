@@ -25,12 +25,14 @@
         "html/dialog.html",
         "html/upload.html",
         "html/permissions.html",
-        "html/encrypt.html"
+        "html/encrypt.html",
+        "html/coordinate.html",
+        "html/coordinate_settings.html"
     ],
 
     "permissions": [
         "https://*/*"
     ],
 
-    "content_security_policy": "script-src 'sha256-cGrdiwKhvGKK6wkcj3Hm+Prnf3bCAecj+nBmtr513HI=' 'self'"
+    "content_security_policy": "script-src 'sha256-cGrdiwKhvGKK6wkcj3Hm+Prnf3bCAecj+nBmtr513HI=' 'sha256-PGGhPGAWvQUzRrfPtTtFcYD12LqYnmYPnTtQctY3ZqY=' 'self'"
 }

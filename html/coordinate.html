@@ -1,0 +1,14 @@
+<html>
+  <head>
+    <title>SecureSend Coordinate Container</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    <iframe id="iframe" scrolling="no" style="height:100%; width:100%; border:none;" src="https://sendcoordinationtest.firebaseapp.com/"></iframe>
+    <script>
+      window.addEventListener("message", function(event) {
+        document.getElementById("iframe").contentWindow.postMessage(event.data, "*");
+      });
+    </script>
+  </body>
+</html>

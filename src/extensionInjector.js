@@ -17,7 +17,9 @@ function onExtensionLoad() {
     var permissions = chrome.runtime.getURL("html/permissions.html");
     var mdlScript = chrome.runtime.getURL("dist/mdl/material-run.js");
     var encrypt = chrome.runtime.getURL("html/encrypt.html");
-    var urls = { dialog, upload, permissions, mdlScript, encrypt };
+    var coordinate = chrome.runtime.getURL("html/coordinate.html");
+    var coordinateSettings = chrome.runtime.getURL("html/coordinate_settings.html");
+    var urls = { dialog, upload, permissions, mdlScript, encrypt, coordinate, coordinateSettings };
 
     var event = document.createEvent("CustomEvent");
     event.initCustomEvent("securesendUiSrcTransfer", true, true, urls);
