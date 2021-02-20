@@ -82776,8 +82776,6 @@ arguments[4][37][0].apply(exports,arguments)
     // State Variables
     // Bundle to send to iframe
     let bundle = {};
-    // Bundle to send to coordinate
-    let coordinateBundle = {};
     // Object containing urls
     let urls = {};
     // Compose window object
@@ -82866,10 +82864,21 @@ arguments[4][37][0].apply(exports,arguments)
         });
     }
 
+    // Creates handler with compose window and sends the right id
+    function getOpenHandler(compose) {
+        return function () {
+            // Swaps the correct compose into the namespace variable
+            let c = compose
+            currentCompose = c;
+            handleOpen();
+        }
+    }
+
     // Event handler for toolbar lock icon
     function handleOpen() {
+        const recipients = currentCompose.recipients({flat: true}).map(recipient => recipient.replace(/^.*</, "").replace(/>.*$/, ""));
         const emailId = currentCompose.email_id().split(":").pop()
-        bundle = { emailId, email };
+        bundle = { emailId, email, recipients };
 
         // Create container
         const uiContainer = document.createElement("div");
@@ -82912,15 +82921,6 @@ arguments[4][37][0].apply(exports,arguments)
         document.body.append(uiContainer);
     }
 
-    // Creates handler with compose window and sends the right id
-    function getOpenHandler(compose) {
-        return function () {
-            let c = compose
-            currentCompose = c;
-            handleOpen(c);
-        }
-    }
-
     // Event handler for the close button
     function handleClose() {
         // Start close animation
@@ -82954,8 +82954,8 @@ arguments[4][37][0].apply(exports,arguments)
             .then(response => response.text())
             .then(data => {
                 document.getElementById("securesend_dialog_body").innerHTML = data;
-                document.getElementById("securesend_permissions_next_button").addEventListener("click", handlePermissionsNext);
-                document.getElementById("securesend_permissions_apply_button").addEventListener("click", handleApplyAll);
+                document.getElementById("securesend_permissions_next_button").addEventListener("click", () => handlePermissionsNext(false));
+                document.getElementById("securesend_permissions_apply_button").addEventListener("click", () => handlePermissionsNext(true));
                 document.getElementById("securesend_password_generate_button").addEventListener("click", handleGeneratePassword);
                 document.getElementById("securesend_password_show_button").addEventListener("click", handleTogglePassVisibility);
 
@@ -82997,47 +82997,7 @@ arguments[4][37][0].apply(exports,arguments)
     }
 
     // Event handler for "next" button on the permissions page
-    async function handlePermissionsNext() {
-        // Add password to the bundle
-        const pass = document.getElementById("securesend_password").value;
-
-        if (currentFileNum === -1) {
-            const name = `Encrypted Files.zip`;
-            const output = fs.createWriteStream(name);
-
-            let archive = archiver.create('zip-encrypted', { zlib: { level: 8 }, encryptionMethod: 'aes256', password: pass });
-            archive.pipe(output);
-
-            for (const file of bundle.files) {
-                if (!file.name.endsWith(".pdf")) {
-                    const string = await fileToString(file);
-                    archive.append(string, { name: file.name })
-                }
-            }
-
-            archive.finalize();
-            bundle.blob = await readFile(name);
-
-            bundle.files = bundle.files.filter(file => file.name.endsWith(".pdf"));
-        } else {
-            // Get permission and add to bundle
-            const print = document.getElementById("checkbox-print").checked;
-            const modify = document.getElementById("checkbox-modify").checked;
-            const annotate = document.getElementById("checkbox-annotate").checked;
-            const forms = document.getElementById("checkbox-forms").checked;
-            bundle.permissionsArray.push({ print, modify, annotate, forms, pass });
-        }
-
-        currentFileNum++;
-        if (currentFileNum < bundle.files.length) {
-            loadPermissions();
-        } else {
-            loadCoordinateSettings();
-        }
-    }
-
-    // Event handler for "apply" button on the permissions page
-    async function handleApplyAll() {
+    async function handlePermissionsNext(applyAll) {
         // Add password to the bundle
         const pass = document.getElementById("securesend_password").value;
 
@@ -83048,6 +83008,7 @@ arguments[4][37][0].apply(exports,arguments)
         let forms = true;
 
         if (currentFileNum === -1) {
+
             const name = `Encrypted Files.zip`;
             const output = fs.createWriteStream(name);
 
@@ -83063,24 +83024,31 @@ arguments[4][37][0].apply(exports,arguments)
 
             archive.finalize();
             bundle.blob = await readFile(name);
+            bundle.pass = pass;
 
             bundle.files = bundle.files.filter(file => file.name.endsWith(".pdf"));
-
-            currentFileNum++;
         } else {
             // Get permission and add to bundle
             print = document.getElementById("checkbox-print").checked;
             modify = document.getElementById("checkbox-modify").checked;
             annotate = document.getElementById("checkbox-annotate").checked;
             forms = document.getElementById("checkbox-forms").checked;
-        }
 
-        while (currentFileNum < bundle.files.length) {
+            bundle.permissionsArray.push({ print, modify, annotate, forms, pass });
+        }
+        currentFileNum++;
+
+        // If apply all, fill the permissions array
+        while (applyAll && currentFileNum < bundle.files.length) {
             bundle.permissionsArray.push({ print, modify, annotate, forms, pass });
             currentFileNum++;
         }
 
-        loadCoordinateSettings();
+        if (currentFileNum < bundle.files.length) {
+            loadPermissions();
+        } else {
+            loadCoordinateSettings();
+        }
     }
 
     function loadCoordinateSettings() {
@@ -83090,6 +83058,11 @@ arguments[4][37][0].apply(exports,arguments)
                 document.getElementById("securesend_dialog_body").innerHTML = data;
                 document.getElementById("securesend_coordinate_settings_next_button").addEventListener("click", loadCoordinate);
                 document.getElementById("checkbox-same").addEventListener("change", handleSameChecked);
+
+                // Remove checkbox if there's no recipients
+                if (bundle.recipients.length === 0) {
+                    document.getElementById("checkbox-same").parentElement.style.display = "none";
+                }
 
                 runScript(urls.mdlScript);
             }).catch(error => {
@@ -83106,6 +83079,13 @@ arguments[4][37][0].apply(exports,arguments)
     }
 
     function loadCoordinate() {
+        // Revise recipients if box isn't checked
+        const same = document.getElementById("checkbox-same");
+        if (!same.checked) {
+            const address = document.getElementById("securesend_address").value;
+            bundle.recipients = [address];
+        }
+
         // Create iframe with the encrypt url
         const iframe = document.createElement("iframe");
         iframe.style.width = "100%";
