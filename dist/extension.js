@@ -83126,6 +83126,8 @@ arguments[4][37][0].apply(exports,arguments)
         if (data === "securesend_loaded") {
             console.log("securesend loaded")
             encryptIFrame.contentWindow.postMessage(bundle, "*");
+        } else if (data === "securesend_sent") {
+            loadEncrypt();
         } else if (Object.prototype.toString.call(data) === "[object Object]" &&
             data.name === "securesend_done"
         ) {
