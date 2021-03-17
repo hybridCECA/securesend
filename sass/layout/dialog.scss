@@ -31,5 +31,6 @@
         height: calc(#{$dialog-height} - #{$header-height});
         box-sizing: border-box;
         padding: $margin-large;
+        overflow-y: scroll;
     }
 }

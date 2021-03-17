@@ -113,6 +113,7 @@
   height: calc(500px - 40px);
   box-sizing: border-box;
   padding: 2rem;
+  overflow-y: scroll;
 }
 
 .securesend_upload_container {
@@ -159,6 +160,18 @@
   right: 0;
 }
 .securesend_permissions_button {
+  float: right;
+  margin-right: 2rem !important;
+}
+
+div.securesend_coordinate_method_input {
+  width: 10rem;
+}
+div.securesend_coordinate_address_input {
+  width: 10rem;
+}
+
+.securesend_coordinate_button {
   float: right;
   margin-right: 2rem !important;
 }

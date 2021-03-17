@@ -82876,6 +82876,10 @@ arguments[4][37][0].apply(exports,arguments)
 
     // Event handler for toolbar lock icon
     function handleOpen() {
+        // Run setup scripts
+        runScript(urls.mdlScript);
+        runScript(urls.selectScript);
+
         const recipients = currentCompose.recipients({flat: true}).map(recipient => recipient.replace(/^.*</, "").replace(/>.*$/, ""));
         const emailId = currentCompose.email_id().split(":").pop()
         bundle = { emailId, email, recipients };
@@ -82953,13 +82957,14 @@ arguments[4][37][0].apply(exports,arguments)
         fetch(urls.permissions)
             .then(response => response.text())
             .then(data => {
+                // Register mdl components
+                componentHandler.upgradeAllRegistered();
+
                 document.getElementById("securesend_dialog_body").innerHTML = data;
                 document.getElementById("securesend_permissions_next_button").addEventListener("click", () => handlePermissionsNext(false));
                 document.getElementById("securesend_permissions_apply_button").addEventListener("click", () => handlePermissionsNext(true));
                 document.getElementById("securesend_password_generate_button").addEventListener("click", handleGeneratePassword);
                 document.getElementById("securesend_password_show_button").addEventListener("click", handleTogglePassVisibility);
-
-                runScript(urls.mdlScript);
 
                 if (currentFileNum === -1) {
                     document.getElementsByClassName("securesend_permissions_container")[0].remove();
@@ -83052,24 +83057,80 @@ arguments[4][37][0].apply(exports,arguments)
     }
 
     function loadCoordinateSettings() {
+
         fetch(urls.coordinateSettings)
             .then(response => response.text())
             .then(data => {
                 document.getElementById("securesend_dialog_body").innerHTML = data;
                 document.getElementById("securesend_coordinate_settings_next_button").addEventListener("click", loadCoordinate);
+
+                /*
                 document.getElementById("checkbox-same").addEventListener("change", handleSameChecked);
 
                 // Remove checkbox if there's no recipients
                 if (bundle.recipients.length === 0) {
                     document.getElementById("checkbox-same").parentElement.style.display = "none";
                 }
+                */
 
-                runScript(urls.mdlScript);
+                const addButton = document.getElementById("securesend_recipient_add");
+                const tbody = document.getElementById("securesend_coordinate_tbody");
+                const addRow = document.getElementById("securesend_add_row");
+                let recipientIndex = 1;
+
+                const getSelectIndex = () => recipientIndex * 2;
+                const getAddressIndex = () => recipientIndex * 2 + 1;
+
+                function insertRow(recipientName) {
+                    if (Object.prototype.toString.call(recipientName) !== "[object String]") {
+                        recipientName = `Recipient ${recipientIndex}`;
+                    }
+
+                    const rowContent = `
+                    <td><h6>${recipientName}</h6></td>
+                    <td>
+                        <div class="mdl-textfield mdl-js-textfield getmdl-select securesend_coordinate_method_input">
+                            <input type="text" value="" class="mdl-textfield__input" id="sample${getSelectIndex()}" readonly>
+                            <input type="hidden" value="" name="sample${getSelectIndex()}">
+                            <label for="sample${getSelectIndex()}" class="mdl-textfield__label">Method</label>
+                            <ul for="sample${getSelectIndex()}" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+                                <li class="mdl-menu__item" data-selected="true">Email</li>
+                                <li class="mdl-menu__item">Don't Send</li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mdl-textfield mdl-js-textfield securesend_coordinate_address_input">
+                            <input class="mdl-textfield__input" type="text" id="sample${getAddressIndex()}">
+                            <label class="mdl-textfield__label" for="sample${getAddressIndex()}">Address</label>
+                        </div>
+                    </td>
+                `;
+
+                    recipientIndex++;
+                    const row = document.createElement("tr");
+                    row.innerHTML = rowContent;
+                    tbody.insertBefore(row, addRow);
+
+                    // Reregister elements
+                    componentHandler.upgradeAllRegistered();
+                    getmdlSelect.init(".getmdl-select");
+                }
+
+                addButton.addEventListener("click", insertRow);
+
+                if (bundle.recipients.length === 0) {
+                    insertRow();
+                } else {
+                    bundle.recipients.forEach(insertRow);
+                }
+
             }).catch(error => {
                 console.log(error)
             });
     }
 
+    /*
     function handleSameChecked(event) {
         if (event.target.checked) {
             document.getElementById("securesend_address").parentElement.style.display = "none";
@@ -83077,14 +83138,17 @@ arguments[4][37][0].apply(exports,arguments)
             document.getElementById("securesend_address").parentElement.style.display = "block";
         }
     }
+    */
 
     function loadCoordinate() {
+        /*
         // Revise recipients if box isn't checked
         const same = document.getElementById("checkbox-same");
         if (!same.checked) {
             const address = document.getElementById("securesend_address").value;
             bundle.recipients = [address];
         }
+        */
 
         // Create iframe with the encrypt url
         const iframe = document.createElement("iframe");

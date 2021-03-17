@@ -21,13 +21,14 @@
     "web_accessible_resources": [
         "dist/gmailJsLoader.js",
         "dist/extension.js",
-        "dist/mdl/material-run.js",
+        "dist/mdl/material.min.js",
+        "dist/mdl-select/getmdl-select.min.js",
         "html/dialog.html",
         "html/upload.html",
         "html/permissions.html",
         "html/encrypt.html",
         "html/coordinate.html",
-        "html/coordinate_settings.html"
+        "html/coordinate_settings_2.html"
     ],
 
     "permissions": [

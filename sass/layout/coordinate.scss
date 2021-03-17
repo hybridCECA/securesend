@@ -1,0 +1,14 @@
+div.securesend_coordinate {
+    &_method_input {
+        width: 10rem;
+    }
+
+    &_address_input {
+        width: 10rem;
+    }
+}
+
+.securesend_coordinate_button {
+    float: right;
+    margin-right: $margin-large !important;
+}
