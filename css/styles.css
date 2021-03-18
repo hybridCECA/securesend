@@ -175,5 +175,9 @@ div.securesend_coordinate_address_input {
   float: right;
   margin-right: 2rem !important;
 }
+.securesend_coordinate_delete_row {
+  font-size: 36px;
+  cursor: pointer;
+}
 
 /*# sourceMappingURL=styles.css.map */

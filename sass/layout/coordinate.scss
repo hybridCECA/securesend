@@ -8,7 +8,15 @@ div.securesend_coordinate {
     }
 }
 
-.securesend_coordinate_button {
-    float: right;
-    margin-right: $margin-large !important;
+
+.securesend_coordinate {
+    &_button {
+        float: right;
+        margin-right: $margin-large !important;
+    }
+
+    &_delete_row {
+        font-size: 36px;
+        cursor: pointer;
+    }
 }

@@ -82787,6 +82787,8 @@ arguments[4][37][0].apply(exports,arguments)
     // Index of current file
     let currentFileNum = -1;
 
+    let recipientIndex = 1;
+
     // Utility functions
     // Function used to run scripts from a url
     function runScript(url) {
@@ -83057,29 +83059,30 @@ arguments[4][37][0].apply(exports,arguments)
     }
 
     function loadCoordinateSettings() {
-
         fetch(urls.coordinateSettings)
             .then(response => response.text())
             .then(data => {
+                recipientIndex = 1;
+
                 document.getElementById("securesend_dialog_body").innerHTML = data;
-                document.getElementById("securesend_coordinate_settings_next_button").addEventListener("click", loadCoordinate);
-
-                /*
-                document.getElementById("checkbox-same").addEventListener("change", handleSameChecked);
-
-                // Remove checkbox if there's no recipients
-                if (bundle.recipients.length === 0) {
-                    document.getElementById("checkbox-same").parentElement.style.display = "none";
-                }
-                */
 
                 const addButton = document.getElementById("securesend_recipient_add");
                 const tbody = document.getElementById("securesend_coordinate_tbody");
                 const addRow = document.getElementById("securesend_add_row");
-                let recipientIndex = 1;
 
-                const getSelectIndex = () => recipientIndex * 2;
-                const getAddressIndex = () => recipientIndex * 2 + 1;
+                document.getElementById("securesend_coordinate_settings_next_button").addEventListener("click", loadCoordinate);
+
+                function deleteRow(event) {
+                    const row = event.target.parentElement.parentElement;
+                    row.remove();
+                }
+
+                function handleMethodChange(event) {
+                    const index = parseInt(event.target.id.replace(/^\D*/, ""));
+                    const addressInput = document.getElementById(`securesend_address_${index}`).parentElement;
+                    const setToEmail = event.target.value.toLowerCase().includes("email")
+                    addressInput.style.display = setToEmail ? "block" : "none";
+                }
 
                 function insertRow(recipientName) {
                     if (Object.prototype.toString.call(recipientName) !== "[object String]") {
@@ -83087,30 +83090,39 @@ arguments[4][37][0].apply(exports,arguments)
                     }
 
                     const rowContent = `
-                    <td><h6>${recipientName}</h6></td>
-                    <td>
-                        <div class="mdl-textfield mdl-js-textfield getmdl-select securesend_coordinate_method_input">
-                            <input type="text" value="" class="mdl-textfield__input" id="sample${getSelectIndex()}" readonly>
-                            <input type="hidden" value="" name="sample${getSelectIndex()}">
-                            <label for="sample${getSelectIndex()}" class="mdl-textfield__label">Method</label>
-                            <ul for="sample${getSelectIndex()}" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
-                                <li class="mdl-menu__item" data-selected="true">Email</li>
-                                <li class="mdl-menu__item">Don't Send</li>
-                            </ul>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="mdl-textfield mdl-js-textfield securesend_coordinate_address_input">
-                            <input class="mdl-textfield__input" type="text" id="sample${getAddressIndex()}">
-                            <label class="mdl-textfield__label" for="sample${getAddressIndex()}">Address</label>
-                        </div>
-                    </td>
-                `;
+                        <td><h6>${recipientName}</h6></td>
+                        <td>
+                            <div class="mdl-textfield mdl-js-textfield getmdl-select securesend_coordinate_method_input">
+                                <input type="text" value="" class="mdl-textfield__input" id="securesend_method_${recipientIndex}" readonly>
+                                <input type="hidden" value="" name="securesend_method_${recipientIndex}">
+                                <label for="securesend_method_${recipientIndex}" class="mdl-textfield__label">Method</label>
+                                <ul for="securesend_method_${recipientIndex}" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+                                    <li class="mdl-menu__item" data-selected="true">Email</li>
+                                    <li class="mdl-menu__item">Don't Send</li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="mdl-textfield mdl-js-textfield securesend_coordinate_address_input">
+                                <input class="mdl-textfield__input" type="text" id="securesend_address_${recipientIndex}">
+                                <label class="mdl-textfield__label" for="securesend_address_${recipientIndex}">Address</label>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="securesend_coordinate_delete_row">&times;</span>
+                        </td>
+                    `;
 
-                    recipientIndex++;
+                    // Insert row
                     const row = document.createElement("tr");
                     row.innerHTML = rowContent;
                     tbody.insertBefore(row, addRow);
+
+                    // Register event handlers
+                    document.getElementById(`securesend_method_${recipientIndex}`).addEventListener("change", handleMethodChange);
+                    row.getElementsByClassName("securesend_coordinate_delete_row")[0].addEventListener("click", deleteRow);
+
+                    recipientIndex++;
 
                     // Reregister elements
                     componentHandler.upgradeAllRegistered();
@@ -83130,25 +83142,17 @@ arguments[4][37][0].apply(exports,arguments)
             });
     }
 
-    /*
-    function handleSameChecked(event) {
-        if (event.target.checked) {
-            document.getElementById("securesend_address").parentElement.style.display = "none";
-        } else {
-            document.getElementById("securesend_address").parentElement.style.display = "block";
-        }
-    }
-    */
-
     function loadCoordinate() {
-        /*
-        // Revise recipients if box isn't checked
-        const same = document.getElementById("checkbox-same");
-        if (!same.checked) {
-            const address = document.getElementById("securesend_address").value;
-            bundle.recipients = [address];
+        // Revise recipients
+        bundle.recipients = [];
+        for (let i = 1; i < recipientIndex; i++) {
+            const method = document.getElementById(`securesend_method_${i}`);
+
+            if (method.value.toLowerCase().includes("email")) {
+                const address = document.getElementById(`securesend_address_${i}`);
+                bundle.recipients.push(address.value);
+            }
         }
-        */
 
         // Create iframe with the encrypt url
         const iframe = document.createElement("iframe");
