@@ -82793,10 +82793,7 @@ arguments[4][37][0].apply(exports,arguments)
     // Function used to run scripts from a url
     function runScript(url) {
         $.getScript(url, function (data, textStatus, jqxhr) {
-            console.log(data); // Data returned
-            console.log(textStatus); // Success
-            console.log(jqxhr.status); // 200
-            console.log("Script ran");
+
         });
     }
     function fileToString(file) {
@@ -83080,30 +83077,33 @@ arguments[4][37][0].apply(exports,arguments)
                 function handleMethodChange(event) {
                     const index = parseInt(event.target.id.replace(/^\D*/, ""));
                     const addressInput = document.getElementById(`securesend_address_${index}`).parentElement;
-                    const setToEmail = event.target.value.toLowerCase().includes("email")
+                    const setToEmail = event.target.value.toLowerCase() === "email";
                     addressInput.style.display = setToEmail ? "block" : "none";
                 }
 
                 function insertRow(recipientName) {
+                    let emailSet = true;
                     if (Object.prototype.toString.call(recipientName) !== "[object String]") {
+                        emailSet = false;
                         recipientName = `Recipient ${recipientIndex}`;
                     }
 
                     const rowContent = `
-                        <td><h6>${recipientName}</h6></td>
+                        <td><h6 id="securesend_name_${recipientIndex}">${recipientName}</h6></td>
                         <td>
-                            <div class="mdl-textfield mdl-js-textfield getmdl-select securesend_coordinate_method_input">
+                            <div id="securesend_method_container_${recipientIndex}" class="mdl-textfield mdl-js-textfield getmdl-select securesend_coordinate_method_input">
                                 <input type="text" value="" class="mdl-textfield__input" id="securesend_method_${recipientIndex}" readonly>
                                 <input type="hidden" value="" name="securesend_method_${recipientIndex}">
                                 <label for="securesend_method_${recipientIndex}" class="mdl-textfield__label">Method</label>
                                 <ul for="securesend_method_${recipientIndex}" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
-                                    <li class="mdl-menu__item" data-selected="true">Email</li>
+                                    ${emailSet ? '<li class="mdl-menu__item" data-selected="true">Use Same Email</li>' : ''}
+                                    <li class="mdl-menu__item" ${emailSet ? '' : 'data-selected="true"'}>Email</li>
                                     <li class="mdl-menu__item">Don't Send</li>
                                 </ul>
                             </div>
                         </td>
                         <td>
-                            <div class="mdl-textfield mdl-js-textfield securesend_coordinate_address_input">
+                            <div style="display: ${emailSet ? 'none' : 'block'}" class="mdl-textfield mdl-js-textfield securesend_coordinate_address_input">
                                 <input class="mdl-textfield__input" type="text" id="securesend_address_${recipientIndex}">
                                 <label class="mdl-textfield__label" for="securesend_address_${recipientIndex}">Address</label>
                             </div>
@@ -83122,11 +83122,11 @@ arguments[4][37][0].apply(exports,arguments)
                     document.getElementById(`securesend_method_${recipientIndex}`).addEventListener("change", handleMethodChange);
                     row.getElementsByClassName("securesend_coordinate_delete_row")[0].addEventListener("click", deleteRow);
 
-                    recipientIndex++;
-
                     // Reregister elements
                     componentHandler.upgradeAllRegistered();
-                    getmdlSelect.init(".getmdl-select");
+                    getmdlSelect.init(`#securesend_method_container_${recipientIndex}`);
+
+                    recipientIndex++;
                 }
 
                 addButton.addEventListener("click", insertRow);
@@ -83147,10 +83147,14 @@ arguments[4][37][0].apply(exports,arguments)
         bundle.recipients = [];
         for (let i = 1; i < recipientIndex; i++) {
             const method = document.getElementById(`securesend_method_${i}`);
+            const selectedMethod = method.value.toLowerCase();
 
-            if (method.value.toLowerCase().includes("email")) {
+            if (selectedMethod === "email") {
                 const address = document.getElementById(`securesend_address_${i}`);
                 bundle.recipients.push(address.value);
+            } else if (selectedMethod.includes("same")) {
+                const address = document.getElementById(`securesend_name_${i}`);
+                bundle.recipients.push(address.innerText);
             }
         }
 
