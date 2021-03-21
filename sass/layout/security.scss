@@ -8,7 +8,7 @@
         margin-bottom: 2rem;
 
         & > tbody > tr > td {
-            padding: 0 1rem;
+            padding: 0 0.5rem;
         }
     }
 
@@ -16,17 +16,23 @@
         text-align: center;
     }
 
-    &_password_container {
-        width: 100%;
-    }
-
-    &_action_button {
-        margin-right: 1rem;
-        margin-bottom: 1rem;
-    }
-
     &_next_button {
         float: right;
         margin-right: $margin-large !important;
     }
+}
+
+div.securesend_security_password_container {
+    width: 100%;
+}
+
+button.securesend_security_action_button {
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+}
+
+li.securesend_security_permissions_item {
+    line-height: initial;
+    display: flex;
+    align-items: center;
 }

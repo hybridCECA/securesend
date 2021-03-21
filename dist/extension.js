@@ -82787,6 +82787,8 @@ arguments[4][37][0].apply(exports,arguments)
     // Index of current file
     let currentFileNum = -1;
 
+    let fileIndex = 1;
+
     let recipientIndex = 1;
 
     // Utility functions
@@ -82941,12 +82943,6 @@ arguments[4][37][0].apply(exports,arguments)
         bundle.files = Array.from(document.getElementById("securesend_upload_input").files);
         bundle.permissionsArray = [];
 
-        if (containsNonPdf(bundle.files)) {
-            currentFileNum = -1;
-        } else {
-            currentFileNum = 0;
-        }
-
         // Load the next page: permissions
         loadPermissions();
     }
@@ -82956,51 +82952,148 @@ arguments[4][37][0].apply(exports,arguments)
         fetch(urls.security)
             .then(response => response.text())
             .then(data => {
+                fileIndex = 1;
+
                 document.getElementById("securesend_dialog_body").innerHTML = data;
 
-                // Register mdl components
-                componentHandler.upgradeAllRegistered();
+                const tbody = document.getElementById("securesend_security_tbody");
 
-                /*
-                document.getElementById("securesend_permissions_next_button").addEventListener("click", () => handlePermissionsNext(false));
-                document.getElementById("securesend_permissions_apply_button").addEventListener("click", () => handlePermissionsNext(true));
-                document.getElementById("securesend_password_generate_button").addEventListener("click", handleGeneratePassword);
-                document.getElementById("securesend_password_show_button").addEventListener("click", handleTogglePassVisibility);
+                // Event handler for password visibility toggle
+                function handleTogglePassVisibility(event) {
+                    const cell = event.target.parentElement.parentElement;
+                    const input = cell.getElementsByTagName("input")[0];
 
-                if (currentFileNum === -1) {
-                    document.getElementsByClassName("securesend_permissions_container")[0].remove();
-                    document.getElementsByClassName("securesend_permissions_title")[0].innerHTML += " for encrypted zip"
-                } else {
-                    document.getElementsByClassName("securesend_permissions_title")[0].innerHTML += bundle.files[currentFileNum].name;
+                    if (input.type === "password") {
+                        input.type = "text";
+                        event.target.innerText = "Hide";
+                    } else {
+                        input.type = "password";
+                        event.target.innerText = "Show";
+                    }
                 }
-                */
+
+                // Event handler for password generation
+                function handleGeneratePassword(event) {
+                    const row = event.target.parentElement.parentElement;
+                    const input = row.getElementsByTagName("input")[0];
+                    const visibilityButton = row.getElementsByTagName("button")[0];
+
+                    // Add random password to the input
+                    input.value = password.randomPassword({length: 16});
+                    input.type = "text";
+                    visibilityButton.innerText = "Hide";
+
+                    // Add dirty class to trigger animation
+                    const DIRTY_CLASS = "is-dirty";
+                    if (!input.parentElement.classList.contains(DIRTY_CLASS)) {
+                        input.parentElement.classList.add(DIRTY_CLASS)
+                    }
+                }
+
+                function insertRow(filename) {
+                    // If filename is null, then it is the encrypted zip
+                    let zip = false;
+                    if (Object.prototype.toString.call(filename) !== "[object String]") {
+                        zip = true
+                        filename = "Encrypted Zip";
+                    }
+
+                    const rowContent = `
+                        <td>
+                            ${
+                                // Choose the correct icon
+                                zip ?
+                                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0l-11 6v12.131l11 5.869 11-5.869v-12.066l-11-6.065zm-1 21.2l-8-4.268v-8.702l8 4.363v8.607zm10-4.268l-8 4.268v-9.793l-8.867-4.837 7.862-4.289 9.005 4.969v9.682zm-4.408-4.338l1.64-.917-.006.623-1.64.918.006-.624zm1.653-2.165l-1.641.919-.006.624 1.641-.918.006-.625zm0-1.19l-1.641.919-.006.624 1.641-.918.006-.625zm-3.747-.781l1.645-.96-.519-.273-1.646.959.52.274zm4.208 6.33l-.486-1.865-1.641.919-.523 2.431c-.229 1.105.422 1.31 1.311.812.886-.497 1.548-1.437 1.339-2.297zm-1.335 1.684c-.411.23-.821.262-.817-.136.005-.41.422-.852.835-1.083.407-.228.81-.25.806.165-.005.398-.415.825-.824 1.054zm-4.349-10.625l-.519-.274-1.646.96.52.274 1.645-.96zm-1.559-.826l-1.646.96.523.277 1.646-.96-.523-.277zm1.992 2.885l1.644-.958-.515-.274-1.647.958.518.274zm3.001 1.744l1.646-.96-.52-.273-1.645.959.519.274zm-6.029-5.177l-1.645.96.516.274 1.647-.959-.518-.275zm1.992 2.886l1.646-.96-.52-.274-1.645.959.519.275zm3.058 1.689l1.646-.959-.518-.274-1.646.96.518.273z"/></svg>'
+                                :
+                                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16 0h-14v24h20v-18l-6-6zm0 3l3 3h-3v-3zm-12 19v-20h10v6h6v14h-16z"/></svg>'
+                            }
+                            <span id="securesend_filename_${fileIndex}">${filename}</span>
+                        </td>
+                        <td>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label securesend_security_password_container">
+                                <input class="mdl-textfield__input" type="password" id="securesend_password_${fileIndex}">
+                                <label class="mdl-textfield__label" for="securesend_password">Password</label>
+                            </div>
+                            <div class="securesend_security_show_container">
+                                <button id="securesend_password_visibility_${fileIndex}" class="mdl-button mdl-js-button mdl-button--raised securesend_security_action_button">
+                                    Show
+                                </button>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored securesend_security_action_button" id="securesend_generate_${fileIndex}">
+                                Generate
+                            </button>
+
+                            ${
+                                !zip ?
+                                `<button class="mdl-button mdl-js-button mdl-button--raised securesend_security_action_button" id="securesend_permissions_${fileIndex}">
+                                    Permissions
+                                </button>`
+                                :
+                                ''
+                            }
+
+                            <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="securesend_permissions_${fileIndex}">
+                                <li class="mdl-menu__item securesend_security_permissions_item">
+                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-print_${fileIndex}">
+                                        <input type="checkbox" id="checkbox-print_${fileIndex}" class="mdl-checkbox__input" checked>
+                                        <span class="mdl-checkbox__label">Printing</span>
+                                    </label>
+                                </li>
+                                <li class="mdl-menu__item securesend_security_permissions_item">
+                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-modify_${fileIndex}">
+                                        <input type="checkbox" id="checkbox-modify_${fileIndex}" class="mdl-checkbox__input" checked>
+                                        <span class="mdl-checkbox__label">Modifying</span>
+                                    </label>
+                                </li>
+                                <li class="mdl-menu__item securesend_security_permissions_item">
+                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-annotate_${fileIndex}">
+                                        <input type="checkbox" id="checkbox-annotate_${fileIndex}" class="mdl-checkbox__input" checked>
+                                        <span class="mdl-checkbox__label">Annotating</span>
+                                    </label>
+                                </li>
+                                <li class="mdl-menu__item securesend_security_permissions_item">
+                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-forms_${fileIndex}">
+                                        <input type="checkbox" id="checkbox-forms_${fileIndex}" class="mdl-checkbox__input" checked>
+                                        <span class="mdl-checkbox__label">Filling Forms</span>
+                                    </label>
+                                </li>
+                            </ul>
+                        </td>
+                    `;
+
+                    const row = document.createElement("tr");
+                    row.innerHTML = rowContent;
+
+                    tbody.append(row);
+
+                    document.getElementById(`securesend_password_visibility_${fileIndex}`).addEventListener("click", handleTogglePassVisibility);
+                    document.getElementById(`securesend_generate_${fileIndex}`).addEventListener("click", handleGeneratePassword);
+
+                    componentHandler.upgradeAllRegistered();
+
+                    const menu = row.querySelector(".mdl-menu");
+                    row.querySelectorAll('.mdl-menu__item').forEach(item => {
+                        item.removeEventListener("click", menu.MaterialMenu.boundItemClick_);
+                        item.addEventListener("click", event => event.stopPropagation());
+                    })
+
+                    fileIndex++;
+                }
+
+                if (containsNonPdf(bundle.files)) {
+                    insertRow();
+                }
+
+                const pdfFiles = bundle.files.filter(file => file.name.endsWith(".pdf"));
+                for (const pdfFile of pdfFiles) {
+                    insertRow(pdfFile.name);
+                }
+
             }).catch(error => {
                 console.log(error)
             });
-    }
-
-    // Event handler for password generation
-    function handleGeneratePassword() {
-        // Add random password to the input
-        const input = document.getElementById("securesend_password");
-        input.value = password.randomPassword({length: 16});
-        input.type = "text";
-
-        // Add dirty class to trigger animation
-        const DIRTY_CLASS = "is-dirty";
-        if (!input.parentElement.classList.contains(DIRTY_CLASS)) {
-            input.parentElement.classList.add(DIRTY_CLASS)
-        }
-    }
-
-    // Event handler for password visibility toggle
-    function handleTogglePassVisibility() {
-        const input = document.getElementById("securesend_password");
-        if (input.type === "password") {
-            input.type = "text";
-        } else {
-            input.type = "password";
-        }
     }
 
     // Event handler for "next" button on the permissions page

@@ -28,6 +28,7 @@
     }
 
     &_dialog_body {
+        position: relative;
         height: calc(#{$dialog-height} - #{$header-height});
         box-sizing: border-box;
         padding: $margin-large;

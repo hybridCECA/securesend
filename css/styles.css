@@ -110,6 +110,7 @@
   height: 500px;
 }
 .securesend_dialog_body {
+  position: relative;
   height: calc(500px - 40px);
   box-sizing: border-box;
   padding: 2rem;
@@ -142,21 +143,29 @@
   margin-bottom: 2rem;
 }
 .securesend_security_table > tbody > tr > td {
-  padding: 0 1rem;
+  padding: 0 0.5rem;
 }
 .securesend_security_show_container {
   text-align: center;
 }
-.securesend_security_password_container {
-  width: 100%;
-}
-.securesend_security_action_button {
-  margin-right: 1rem;
-  margin-bottom: 1rem;
-}
 .securesend_security_next_button {
   float: right;
   margin-right: 2rem !important;
+}
+
+div.securesend_security_password_container {
+  width: 100%;
+}
+
+button.securesend_security_action_button {
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+}
+
+li.securesend_security_permissions_item {
+  line-height: initial;
+  display: flex;
+  align-items: center;
 }
 
 div.securesend_coordinate_method_input {
