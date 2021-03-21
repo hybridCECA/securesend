@@ -25,7 +25,7 @@
         "dist/mdl-select/getmdl-select.min.js",
         "html/dialog.html",
         "html/upload.html",
-        "html/permissions.html",
+        "html/security.html",
         "html/encrypt.html",
         "html/coordinate.html",
         "html/coordinate_settings_2.html"

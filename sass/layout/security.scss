@@ -1,0 +1,32 @@
+.securesend_security {
+    &_single_toggle {
+        margin-bottom: 1.5rem;
+    }
+
+    &_table {
+        width: 100%;
+        margin-bottom: 2rem;
+
+        & > tbody > tr > td {
+            padding: 0 1rem;
+        }
+    }
+
+    &_show_container {
+        text-align: center;
+    }
+
+    &_password_container {
+        width: 100%;
+    }
+
+    &_action_button {
+        margin-right: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    &_next_button {
+        float: right;
+        margin-right: $margin-large !important;
+    }
+}

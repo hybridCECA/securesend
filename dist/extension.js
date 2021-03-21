@@ -82953,13 +82953,15 @@ arguments[4][37][0].apply(exports,arguments)
 
     // Loads the permissions page
     function loadPermissions() {
-        fetch(urls.permissions)
+        fetch(urls.security)
             .then(response => response.text())
             .then(data => {
+                document.getElementById("securesend_dialog_body").innerHTML = data;
+
                 // Register mdl components
                 componentHandler.upgradeAllRegistered();
 
-                document.getElementById("securesend_dialog_body").innerHTML = data;
+                /*
                 document.getElementById("securesend_permissions_next_button").addEventListener("click", () => handlePermissionsNext(false));
                 document.getElementById("securesend_permissions_apply_button").addEventListener("click", () => handlePermissionsNext(true));
                 document.getElementById("securesend_password_generate_button").addEventListener("click", handleGeneratePassword);
@@ -82971,6 +82973,7 @@ arguments[4][37][0].apply(exports,arguments)
                 } else {
                     document.getElementsByClassName("securesend_permissions_title")[0].innerHTML += bundle.files[currentFileNum].name;
                 }
+                */
             }).catch(error => {
                 console.log(error)
             });
