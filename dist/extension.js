@@ -82952,8 +82952,6 @@ arguments[4][37][0].apply(exports,arguments)
         fetch(urls.security)
             .then(response => response.text())
             .then(data => {
-                fileIndex = 1;
-
                 document.getElementById("securesend_dialog_body").innerHTML = data;
 
                 const tbody = document.getElementById("securesend_security_tbody");
@@ -82990,14 +82988,7 @@ arguments[4][37][0].apply(exports,arguments)
                     }
                 }
 
-                function insertRow(filename) {
-                    // If filename is null, then it is the encrypted zip
-                    let zip = false;
-                    if (Object.prototype.toString.call(filename) !== "[object String]") {
-                        zip = true
-                        filename = "Encrypted Zip";
-                    }
-
+                function insertRow(filename, zip) {
                     const rowContent = `
                         <td>
                             ${
@@ -83082,15 +83073,35 @@ arguments[4][37][0].apply(exports,arguments)
                     fileIndex++;
                 }
 
-                if (containsNonPdf(bundle.files)) {
-                    insertRow();
+                function buildNonSingle() {
+                    fileIndex = 1;
+
+                    if (containsNonPdf(bundle.files)) {
+                        insertRow("Encryped Zip", true);
+                    }
+
+                    const pdfFiles = bundle.files.filter(file => file.name.endsWith(".pdf"));
+                    for (const pdfFile of pdfFiles) {
+                        insertRow(pdfFile.name, false);
+                    }
                 }
 
-                const pdfFiles = bundle.files.filter(file => file.name.endsWith(".pdf"));
-                for (const pdfFile of pdfFiles) {
-                    insertRow(pdfFile.name);
+                function buildSingle() {
+                    fileIndex = 1;
+
+                    insertRow("All Files", false);
                 }
 
+                document.getElementById("securesend_single_password").addEventListener("change", event => {
+                    tbody.innerHTML = "";
+                    if (event.target.checked) {
+                        buildSingle();
+                    } else {
+                        buildNonSingle();
+                    }
+                });
+
+                buildNonSingle();
             }).catch(error => {
                 console.log(error)
             });
