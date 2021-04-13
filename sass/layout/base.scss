@@ -1,3 +1,7 @@
+html, body {
+    font-size: initial;
+}
+
 .securesend {
     &_ui_container {
         position: fixed;
@@ -7,6 +11,8 @@
         width: 100%;
 
         z-index: 999;
+
+        @import "../../dist/mdl/material";
     }
 
     &_backdrop {

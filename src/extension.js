@@ -56,7 +56,14 @@
                 return true;
             }
         }
-
+        return false;
+    }
+    function containsPdf(fileList) {
+        for (const file of fileList) {
+            if (file.name.endsWith(".pdf")) {
+                return true;
+            }
+        }
         return false;
     }
     // End of utility functions
@@ -124,11 +131,6 @@
         const uiContainer = document.createElement("div");
         uiContainer.className = "securesend_ui_container";
         uiContainer.id = "securesend_ui_container";
-
-        // Create backdrop
-        const backdrop = document.createElement("div");
-        backdrop.className = "securesend_backdrop";
-        uiContainer.append(backdrop)
 
         // Create dialog
         const dialog = document.createElement("div");
@@ -262,26 +264,26 @@
 
                             <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="securesend_permissions_${fileIndex}">
                                 <li class="mdl-menu__item securesend_security_permissions_item">
-                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-print_${fileIndex}">
-                                        <input type="checkbox" id="checkbox-print_${fileIndex}" class="mdl-checkbox__input" checked>
+                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox_print_${fileIndex}">
+                                        <input type="checkbox" id="checkbox_print_${fileIndex}" class="mdl-checkbox__input" checked>
                                         <span class="mdl-checkbox__label">Printing</span>
                                     </label>
                                 </li>
                                 <li class="mdl-menu__item securesend_security_permissions_item">
-                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-modify_${fileIndex}">
-                                        <input type="checkbox" id="checkbox-modify_${fileIndex}" class="mdl-checkbox__input" checked>
+                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox_modify_${fileIndex}">
+                                        <input type="checkbox" id="checkbox_modify_${fileIndex}" class="mdl-checkbox__input" checked>
                                         <span class="mdl-checkbox__label">Modifying</span>
                                     </label>
                                 </li>
                                 <li class="mdl-menu__item securesend_security_permissions_item">
-                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-annotate_${fileIndex}">
-                                        <input type="checkbox" id="checkbox-annotate_${fileIndex}" class="mdl-checkbox__input" checked>
+                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox_annotate_${fileIndex}">
+                                        <input type="checkbox" id="checkbox_annotate_${fileIndex}" class="mdl-checkbox__input" checked>
                                         <span class="mdl-checkbox__label">Annotating</span>
                                     </label>
                                 </li>
                                 <li class="mdl-menu__item securesend_security_permissions_item">
-                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-forms_${fileIndex}">
-                                        <input type="checkbox" id="checkbox-forms_${fileIndex}" class="mdl-checkbox__input" checked>
+                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox_forms_${fileIndex}">
+                                        <input type="checkbox" id="checkbox_forms_${fileIndex}" class="mdl-checkbox__input" checked>
                                         <span class="mdl-checkbox__label">Filling Forms</span>
                                     </label>
                                 </li>
@@ -324,9 +326,10 @@
                 function buildSingle() {
                     fileIndex = 1;
 
-                    insertRow("All Files", false);
+                    insertRow("All Files", !containsPdf(bundle.files));
                 }
 
+                document.getElementById("securesend_security_next_button").addEventListener("click", handleSecurityNext);
                 document.getElementById("securesend_single_password").addEventListener("change", event => {
                     tbody.innerHTML = "";
                     if (event.target.checked) {
@@ -342,7 +345,72 @@
             });
     }
 
-    // Event handler for "next" button on the permissions page
+    // Event handler for "next" button on the security page
+    async function handleSecurityNext() {
+        const isSingle = document.getElementById("securesend_single_password").checked;
+
+        // Get password and permissions from each row
+        for (let rowIndex = 1; rowIndex < fileIndex; rowIndex++) {
+            const pass = document.getElementById(`securesend_password_${rowIndex}`).value;
+            const permissions = {pass};
+
+            const printCheck = document.getElementById(`checkbox_print_${rowIndex}`);
+            if (printCheck) {
+                permissions.print = printCheck.checked;
+                permissions.modify = document.getElementById(`checkbox_modify_${rowIndex}`).checked;
+                permissions.annotate = document.getElementById(`checkbox_annotate_${rowIndex}`).checked;
+                permissions.forms = document.getElementById(`checkbox_forms_${rowIndex}`).checked;
+            }
+
+            bundle.permissionsArray.push(permissions);
+        }
+
+        // Process encrypted zip
+        if (containsNonPdf(bundle.files)) {
+            const name = `Encrypted Files.zip`;
+            const output = fs.createWriteStream(name);
+
+            // Password is always the first in the permission array, even on single
+            const password = bundle.permissionsArray[0].pass;
+
+            let archive = archiver.create('zip-encrypted', { zlib: { level: 8 }, encryptionMethod: 'aes256', password });
+            archive.pipe(output);
+
+            for (const file of bundle.files) {
+                if (!file.name.endsWith(".pdf")) {
+                    const string = await fileToString(file);
+                    archive.append(string, { name: file.name })
+                }
+            }
+
+            archive.finalize();
+
+            await new Promise(resolve => output.on("finish", resolve));
+
+            bundle.blob = await readFile(name);
+
+            bundle.pass = password;
+            bundle.files = bundle.files.filter(file => file.name.endsWith(".pdf"));
+
+            // Fix permission array by removing encrypted zip if not single
+            if (!isSingle) {
+                bundle.permissionsArray.shift();
+            }
+        }
+
+        // Fix permission array if single
+        if (isSingle) {
+            // Copy first for each bundle.files
+            while (bundle.permissionsArray.length < bundle.files.length) {
+                bundle.permissionsArray.push(bundle.permissionsArray[0]);
+            }
+        }
+        
+
+        loadCoordinateSettings();
+    }
+
+    // TODO: Remove, this function is no longer used
     async function handlePermissionsNext(applyAll) {
         // Add password to the bundle
         const pass = document.getElementById("securesend_password").value;
@@ -355,24 +423,6 @@
 
         if (currentFileNum === -1) {
 
-            const name = `Encrypted Files.zip`;
-            const output = fs.createWriteStream(name);
-
-            let archive = archiver.create('zip-encrypted', { zlib: { level: 8 }, encryptionMethod: 'aes256', password: pass });
-            archive.pipe(output);
-
-            for (const file of bundle.files) {
-                if (!file.name.endsWith(".pdf")) {
-                    const string = await fileToString(file);
-                    archive.append(string, { name: file.name })
-                }
-            }
-
-            archive.finalize();
-            bundle.blob = await readFile(name);
-            bundle.pass = pass;
-
-            bundle.files = bundle.files.filter(file => file.name.endsWith(".pdf"));
         } else {
             // Get permission and add to bundle
             print = document.getElementById("checkbox-print").checked;
