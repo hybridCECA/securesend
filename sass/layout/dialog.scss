@@ -20,8 +20,8 @@
 
     &_dialog_container {
         position: fixed;
-        top: 50%;
-        left: 50%;
+        top: calc(50%);
+        left: calc(50%);
         transform: translate(-50%, -50%);
 
         width: $dialog-width;

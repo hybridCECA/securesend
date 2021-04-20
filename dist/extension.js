@@ -82921,6 +82921,44 @@ arguments[4][37][0].apply(exports,arguments)
             .then(data => {
                 document.getElementById("securesend_dialog_body").innerHTML = data;
                 document.getElementById("securesend_upload_input").addEventListener("change", handleFileSelected);
+
+                dialogContainer.style.transform = "translate(0px, 0px)";
+
+                var dragging = false;
+                // Initial mouse x, y
+                var iX, iY;
+                // Initial translate x, y
+                var tiX, tiY;
+                // Actual translate x and y;
+                var tX = 0, tY = 0;
+                function dragMousedown(event) {
+                    iX = event.clientX;
+                    iY = event.clientY;
+
+                    tiX = tX;
+                    tiY = tY;
+
+                    dragging = true;
+                }
+                function dragMouseup(event) {
+                    dragging = false;
+                }
+                function dragMousemove(event) {
+                    if (dragging) {
+                        const mouseDeltaX = event.clientX - iX;
+                        const mouseDeltaY = event.clientY - iY;
+
+                        tX = mouseDeltaX + tiX;
+                        tY = mouseDeltaY + tiY;
+
+                        dialogContainer.style.transform = `translate(${tX}px, ${tY}px)`;
+                    }
+                }
+
+                const header = document.getElementsByClassName("securesend_header")[0];
+                header.addEventListener("mousedown", dragMousedown);
+                header.addEventListener("mouseup", dragMouseup)
+                header.addEventListener("mousemove", dragMousemove);
             }).catch(error => {
                 console.log(error);
             });
