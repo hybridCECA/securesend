@@ -83351,6 +83351,11 @@ arguments[4][37][0].apply(exports,arguments)
         bundle.recipients = [];
         for (let i = 1; i < recipientIndex; i++) {
             const method = document.getElementById(`securesend_method_${i}`);
+            // Skip if row was removed
+            if (!method) {
+                continue;
+            }
+
             const selectedMethod = method.value.toLowerCase();
 
             if (selectedMethod === "email") {
