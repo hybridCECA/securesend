@@ -82947,9 +82947,11 @@ arguments[4][37][0].apply(exports,arguments)
                     tiY = tY;
 
                     dragging = true;
+                    document.body.style.userSelect = "none";
                 }
                 function dragMouseup(event) {
                     dragging = false;
+                    document.body.style.userSelect = "";
                 }
                 function dragMousemove(event) {
                     if (dragging) {
@@ -82966,7 +82968,7 @@ arguments[4][37][0].apply(exports,arguments)
                 const header = document.getElementsByClassName("securesend_header")[0];
                 header.addEventListener("mousedown", dragMousedown);
                 header.addEventListener("mouseup", dragMouseup)
-                header.addEventListener("mousemove", dragMousemove);
+                document.body.addEventListener("mousemove", dragMousemove);
             }).catch(error => {
                 console.log(error);
             });
