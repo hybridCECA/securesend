@@ -23,6 +23,9 @@
         top: calc(50%);
         left: calc(50%);
         transform: translate(-50%, -50%);
+        z-index: 999;
+
+        @import "../../dist/mdl/material";
 
         width: $dialog-width;
         height: $dialog-height;

@@ -82884,6 +82884,11 @@ arguments[4][37][0].apply(exports,arguments)
 
     // Event handler for toolbar lock icon
     function handleOpen() {
+        // Do not open if it is already open
+        if (document.getElementById("securesend_dialog_container")) {
+            return;
+        }
+
         // Run setup scripts
         runScript(urls.mdlScript);
         runScript(urls.selectScript);
@@ -82892,10 +82897,12 @@ arguments[4][37][0].apply(exports,arguments)
         const emailId = currentCompose.email_id().split(":").pop()
         bundle = { emailId, email, recipients };
 
+        /*
         // Create container
         const uiContainer = document.createElement("div");
         uiContainer.className = "securesend_ui_container";
         uiContainer.id = "securesend_ui_container";
+        */
 
         // Create dialog
         const dialog = document.createElement("div");
@@ -82905,8 +82912,8 @@ arguments[4][37][0].apply(exports,arguments)
         // Create dialog container
         const dialogContainer = document.createElement("div");
         dialogContainer.className = "securesend_dialog_container";
+        dialogContainer.id = "securesend_dialog_container";
         dialogContainer.append(dialog)
-        uiContainer.append(dialogContainer);
 
         // Load page
         fetch(urls.dialog)
@@ -82922,7 +82929,6 @@ arguments[4][37][0].apply(exports,arguments)
                 document.getElementById("securesend_dialog_body").innerHTML = data;
                 document.getElementById("securesend_upload_input").addEventListener("change", handleFileSelected);
 
-                dialogContainer.style.transform = "translate(0px, 0px)";
 
                 var dragging = false;
                 // Initial mouse x, y
@@ -82930,7 +82936,9 @@ arguments[4][37][0].apply(exports,arguments)
                 // Initial translate x, y
                 var tiX, tiY;
                 // Actual translate x and y;
-                var tX = 0, tY = 0;
+                var tX = -dialogContainer.clientWidth / 2;
+                var tY = -dialogContainer.clientHeight / 2
+                dialogContainer.style.transform = `translate(${tX}px, ${tY}px)`;
                 function dragMousedown(event) {
                     iX = event.clientX;
                     iY = event.clientY;
@@ -82963,7 +82971,7 @@ arguments[4][37][0].apply(exports,arguments)
                 console.log(error);
             });
 
-        document.body.append(uiContainer);
+        document.body.append(dialogContainer);
     }
 
     // Event handler for the close button
@@ -82973,8 +82981,9 @@ arguments[4][37][0].apply(exports,arguments)
 
         // Close dialog in 100ms
         setTimeout(() => {
-            document.getElementById("securesend_ui_container").remove();
+            document.getElementById("securesend_dialog_container").remove();
         }, 100);
+
     }
 
     // Event handler for file selection on the first page
