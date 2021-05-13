@@ -83369,6 +83369,11 @@ arguments[4][37][0].apply(exports,arguments)
             }
         }
 
+        if (bundle.recipients.length === 0) {
+            loadEncrypt();
+            return;
+        }
+
         // Create iframe with the encrypt url
         const iframe = document.createElement("iframe");
         iframe.style.width = "100%";
